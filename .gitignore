@@ -1,0 +1,6 @@
+node_modules
+*.memory-card.json
+automa.json
+assets/**.xlsx
+keymousego/logs
+keymousego/plugins

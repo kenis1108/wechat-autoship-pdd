@@ -1,0 +1,30 @@
+{
+  "name": "wechaty-pdd-auto",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "prestart": "powershell scripts/prestart.ps1",
+    "start": "nodemon --watch src --ext ts src/index.ts",
+    "test": "nodemon --watch src --ext ts src/test.ts",
+    "keymousego": "powershell scripts/start_kmg.ps1"
+  },
+  "keywords": [],
+  "author": "kenis",
+  "license": "ISC",
+  "dependencies": {
+    "@types/lodash": "^4.14.202",
+    "@types/node": "^20.11.25",
+    "axios": "^1.6.7",
+    "cheerio": "1.0.0-rc.12",
+    "lodash": "^4.17.21",
+    "moment": "^2.30.1",
+    "nodemon": "^3.1.0",
+    "qrcode-terminal": "^0.12.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.2",
+    "wechaty": "^1.20.2",
+    "xlsx": "^0.18.5",
+    "xlsx-populate": "^1.21.0"
+  }
+}
