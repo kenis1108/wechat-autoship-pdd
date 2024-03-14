@@ -2,7 +2,7 @@
  * @Author: kenis 1836362346@qq.com
  * @Date: 2024-03-08 20:21:59
  * @LastEditors: kenis 1836362346@qq.com
- * @LastEditTime: 2024-03-12 13:12:43
+ * @LastEditTime: 2024-03-14 15:57:42
  * @FilePath: \wechaty-pdd-auto\src\utils.ts
  * @Description: 存放工具函数的文件
  */
@@ -15,6 +15,7 @@ import { AutomaJson } from "./types";
 import _ from "lodash";
 import * as fsp from 'fs/promises';
 import moment from "moment";
+import { log } from "wechaty";
 
 /**
  * 获取本地文件的创建时间,并和当前时间对比是否超过一个小时
@@ -30,22 +31,22 @@ export async function getFileCreateTime(filePath: string) {
       const timeDiff = currentTime.getTime() - createTime.getTime();
       const hoursDiff = timeDiff / (1000 * 60 * 60); // 转换为小时
 
-      console.log('文件创建时间:', moment(createTime).format(DATE_FORMAT));
-      console.log('当前时间:', moment(currentTime).format(DATE_FORMAT));
-      console.log('时间差（小时）:', hoursDiff);
+      log.info('文件创建时间:', moment(createTime).format(DATE_FORMAT));
+      log.info('当前时间:', moment(currentTime).format(DATE_FORMAT));
+      log.info('时间差（小时）:', hoursDiff);
 
       if (hoursDiff > 1) {
-        console.log('文件创建时间超过一个小时。');
+        log.info('文件创建时间超过一个小时。');
       } else {
-        console.log('文件创建时间不足一个小时。');
+        log.info('文件创建时间不足一个小时。');
       }
       return hoursDiff > 1
     } else {
-      console.log('文件不存在，启动keymousego获取文件');
+      log.info('文件不存在，启动keymousego获取文件');
       return true
     }
   } catch (err) {
-    console.error('无法获取文件信息:', err);
+    log.error('无法获取文件信息:', err);
   }
 }
 
@@ -84,7 +85,7 @@ export async function dataProcessing(msg: string, msgDateTime: string, wechatyIn
   const msgArr = extractMatchingText(_msg)
 
   if (!msgArr.length) {
-    console.log(NOT_IN_FORMAT_MSG);
+    log.error(NOT_IN_FORMAT_MSG);
     wechatyInstance.say(NOT_IN_FORMAT_MSG)
     return
   } else {
@@ -124,7 +125,7 @@ export async function readJsonFile(filePath: string) {
     const jsonData: AutomaJson[] = JSON.parse(fileContent);
     const result = jsonData.filter(item => item.details.includes('订单编号')).map(({ details }) => {
       const all = details.trim().split('\n').filter(Boolean).filter(i => i !== '\t')
-      console.log(all.length);
+      log.info(`all.length: ${all.length}`);
       // const orderRegex = /^订单编号：\d{6}-\d{15}$/
       const order_sn = all.filter(i => i.includes('订单编号：'))[0].slice(5)
       const commodity = all[all.findIndex(i => i === '发货') + 1]
@@ -136,7 +137,7 @@ export async function readJsonFile(filePath: string) {
       ]
     })
 
-    console.log(result);
+    log.info(JSON.stringify(result));
     // 返回解析后的 JSON 数据
     return result;
   } else {
@@ -152,7 +153,7 @@ export function mergeTablesByColumn(table1: any[][], table2: any[][], mergeColum
 
   // 如果未找到指定列，直接返回原始表格
   if (columnIndex1 === -1 || columnIndex2 === -1) {
-    console.error(`Column "${mergeColumn}" not found in one of the tables.`);
+    log.error(`Column "${mergeColumn}" not found in one of the tables.`);
     return [];
   }
 
@@ -193,7 +194,7 @@ export function isFileExists(filePath: string) {
     fs.accessSync(filePath, fs.constants.F_OK);
     return true;
   } catch (err) {
-    console.log("🚀 ~ isFileExists ~ (err as Error).message:", (err as Error).message)
+    log.error(`${(err as Error).message}`)
     return false;
   }
 }

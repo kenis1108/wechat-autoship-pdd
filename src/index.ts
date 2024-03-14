@@ -2,7 +2,7 @@
  * @Author: kenis 1836362346@qq.com
  * @Date: 2024-03-08 15:33:01
  * @LastEditors: kenis 1836362346@qq.com
- * @LastEditTime: 2024-03-13 18:10:17
+ * @LastEditTime: 2024-03-14 15:55:15
  * @FilePath: \wechaty-pdd-auto\src\index.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -19,9 +19,9 @@ const messageTimeDiff = new MessageTimeDiff()
 /** 
  *  判断automa.json是否已经获取有1h这么久了, 超过1h或者不存在就启动keymouse
  */
-const getAutomaJson = async ()=>{
+const getAutomaJson = async () => {
   const isOneHour = await getFileCreateTime(AUTOMA_JSON_PATH)
-  isOneHour && exec('pnpm keymousego') &&  await delay(3 * 60 * 1000);
+  isOneHour && exec('pnpm keymousego') && await delay(3 * 60 * 1000);
 }
 
 
@@ -43,19 +43,30 @@ async function onScan(qrcode: string, status: ScanStatus) {
 
 /** message事件的回调 */
 async function onMessage(msg: MessageInterface) {
-  // console.log(`Message: ${msg}`);
-  const talker = msg.talker().name()
-  const text = msg.text()
+  log.info('onMessage', JSON.stringify(msg))
+  // Message doc : https://wechaty.js.org/docs/api/message#messageage--number
+
+  const talker = msg.talker().name() // 发消息人
+  const listener = msg.listener() // 接收消息人
+  const room = msg.room() // 是否是群消息
+  const text = msg.text() // 消息内容
+  const type = msg.type() // 消息类型
+  const self = msg.self() // 是否自己发给自己的消息
   const dateTime = moment(msg.date()).format(DATE_FORMAT)
 
-  if (talker !== 'Ài') {
-    console.log(`获取消息的发送人: ${talker}`);
-    console.log(`获取消息的文本内容: ${text}\n${dateTime}`);
+  log.info('talker', talker)
+  log.info('listener', listener || 'undefined')
+  log.info('room', room || 'undefined')
+  log.info('text', text)
+  log.info('type', type)
+  log.info('self', self ? 'true' : 'false')
 
+  // 只对特定群里的信息做处理
+  if (talker !== 'Ài' && room?.payload?.topic === 'wechaty-pdd-auto') {
     // 判断两条消息之间的时间差如果大于规定时间就删除所有已生成的文件,并重新获取automa.json
     const isDelGenerated = messageTimeDiff.receiveMessage(text)
-    console.log("🚀 ~ onMessage ~ isDelGenerated:", isDelGenerated)
-    isDelGenerated && exec('pnpm prestart') &&  await delay(60 * 1000);
+    log.info(`isDelGenerated: ${isDelGenerated}`)
+    isDelGenerated && exec('pnpm prestart') && await delay(60 * 1000);
 
     getAutomaJson()
 
@@ -69,13 +80,19 @@ async function main() {
    * 获取实例对象
    * @description name参数可以将登录信息保存到.memory-card.json里，代码热更新后不用再次扫码登录
    */
-  const wechaty = WechatyBuilder.build({ name: 'default' });
+  const wechaty = WechatyBuilder.build({
+    name: 'default',
+    puppet: 'wechaty-puppet-xp',
+    puppetOptions: {
+      version: '3.9.2.23',
+    },
+  });
   /** 
    * 监听各种事件
    */
   wechaty
     .on('scan', onScan)
-    .on('login', user => console.log(`User ${user} logged in`))
+    .on('login', user => log.info(`User ${user} logged in`))
     .on('message', onMessage);
 
   /**
@@ -85,9 +102,3 @@ async function main() {
 }
 
 main()
-
-/** 每隔一段时间就判断automa.json是否生成超过一个小时了，超过了就要更新 */
-// setInterval(async () => {
-//   const isOneHour = await getFileCreateTime(AUTOMA_JSON_PATH)
-//   isOneHour && exec('pnpm keymouse')
-// }, GET_AUTOMAJSONTIME);

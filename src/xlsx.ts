@@ -2,7 +2,7 @@
  * @Author: kenis 1836362346@qq.com
  * @Date: 2024-03-08 22:51:41
  * @LastEditors: kenis 1836362346@qq.com
- * @LastEditTime: 2024-03-11 11:52:41
+ * @LastEditTime: 2024-03-14 15:48:41
  * @FilePath: \wechaty-pdd-auto\src\xlsx.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -15,6 +15,7 @@ import _ from 'lodash';
 import { MessageInterface } from 'wechaty/impls';
 import { AppendDataToXlsxParams } from './types';
 import XlsxPopulate from 'xlsx-populate';
+import { log } from 'wechaty';
 
 /**
  * 新建xlsx文件
@@ -32,7 +33,7 @@ export async function createNewXlsx(data: string[][], filePath: string) {
   // 将工作簿写入到文件
   XLSX.writeFile(workbook, filePath);
 
-  console.log(`已新建xlsx文件: ${filePath}`);
+  log.info(`已新建xlsx文件: ${filePath}`);
 }
 
 /**
@@ -62,10 +63,10 @@ export async function appendDataToXlsx(params: AppendDataToXlsxParams) {
         return workbook.toFileAsync(saveNewFilePathAfterAddingData || sourceFilePath);
       })
       .then(() => {
-        console.log('数据已成功追加到 Excel 文件。');
+        log.info('数据已成功追加到 Excel 文件。');
       })
       .catch((error: any) => {
-        console.error('发生错误：', error);
+        log.error('发生错误：', error);
       });
   }
 }
@@ -83,7 +84,7 @@ export const mergeTwoXlsxBasedOnColumn = (filePath1: string, filePath2: string, 
 
   const mergeData = mergeTablesByColumn(data1, data2, MERGE_COLUMNS)
 
-  console.log(mergeData);
+  log.info(JSON.stringify(mergeData));
   // 如果该数组长度<2,说明没有找到匹配的订单号
   wechatyInstance.say(DATA_NUM_MSG(mergeData.length - 1))
   if (mergeData.length < 2) {
@@ -117,15 +118,15 @@ export function readExcelToJson(filePath: string): string[][] {
  */
 async function mergeXlsx(wechatyInstance: MessageInterface) {
   /** 第一步：将automa.json转成xlsx */
-  console.log('第一步：将automa.json转成新的automa.xlsx');
+  log.info('第一步：将automa.json转成新的automa.xlsx');
   const automaData = await readJsonFile(AUTOMA_JSON_PATH)
   if (automaData && automaData?.length > 0) {
     if (isFileExists(AUTOMA_XLSX_PATH)) {
       fs.unlink(AUTOMA_XLSX_PATH, (err) => {
         if (err) {
-          console.error('Error deleting file:', err);
+          log.error('Error deleting file:', err);
         } else {
-          console.log(`删除${AUTOMA_XLSX_PATH}成功`);
+          log.info(`删除${AUTOMA_XLSX_PATH}成功`);
         }
       })
     }
@@ -133,11 +134,11 @@ async function mergeXlsx(wechatyInstance: MessageInterface) {
   }
 
   /** 第二步：给wechaty.xlsx去重 */
-  console.log('第二步：给wechaty.xlsx去重');
+  log.info('第二步：给wechaty.xlsx去重');
   await deduplicateXlsx(WECHATY_XLSX_PATH)
 
   /** 第三步：合并automa.xlsx和wechaty.xlsx生成符合拼多多发货模板的xlsx */
-  console.log('第三步：合并automa.xlsx和wachaty.xlsx生成符合拼多多发货模板的xlsx');
+  log.info('第三步：合并automa.xlsx和wachaty.xlsx生成符合拼多多发货模板的xlsx');
   mergeTwoXlsxBasedOnColumn(WECHATY_XLSX_PATH, AUTOMA_XLSX_PATH, wechatyInstance)
 }
 
@@ -192,7 +193,7 @@ export async function deduplicateXlsx(filePath: string) {
   try {
     fs.unlinkSync(filePath);
   } catch (err) {
-    console.error('Error deleting file:', err);
+    log.error('Error deleting file:', err);
   }
 
   // 将新工作簿保存到新文件中
