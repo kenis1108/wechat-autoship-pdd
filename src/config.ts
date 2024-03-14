@@ -2,10 +2,12 @@
  * @Author: kenis 1836362346@qq.com
  * @Date: 2024-03-09 11:39:45
  * @LastEditors: kenis 1836362346@qq.com
- * @LastEditTime: 2024-03-12 12:37:24
+ * @LastEditTime: 2024-03-14 15:20:23
  * @FilePath: \wechaty-pdd-auto\src\config.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
+import os from 'os';
+const homedir = os.homedir()
 /* -------------------------------------------------------------------------- */
 /*                                  file path                                 */
 /* -------------------------------------------------------------------------- */
@@ -18,7 +20,7 @@ export const AUTOMA_XLSX_PATH = 'assets/automa.xlsx';
 /** 最终生成的发货文件路径 */
 export const SHIPPING_PATH = 'assets/shipping.xlsx';
 /** automa导出的json文件路径 */
-export const AUTOMA_JSON_PATH = 'C:/Users/ken/Downloads/automa.json';
+export const AUTOMA_JSON_PATH = `${homedir}\\Downloads\\automa.json`;
 
 /* -------------------------------------------------------------------------- */
 /*                                table columns                               */
