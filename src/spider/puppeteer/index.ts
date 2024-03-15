@@ -3,7 +3,7 @@
 * @Author: kenis 1836362346@qq.com
 * @Date: 2024-03-13 18:35:20
  * @LastEditors: kenis 1836362346@qq.com
- * @LastEditTime: 2024-03-15 19:08:25
+ * @LastEditTime: 2024-03-15 19:43:12
 * @FilePath: \wechat-autoship-pdd\src\test.ts
 * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 */
@@ -16,18 +16,39 @@ import { delay, isFileExists, removeCSS } from '../../../utils';
 import { createNewXlsx } from '../../xlsx';
 import { ORDER_HEADER_DATA, SPIDER_XLSX_PATH } from '../../../config';
 
-const cookiesJSONPath = 'cookies.json';
-const targetUrl = 'https://mms.pinduoduo.com/orders/list';
-/** 待发货数量 */
-const orderSumSelector = '.NewQuickTab_pdd-tab-title-current__1WJGI > span > span';
-/** 查看按钮 */
-const checkSelector = '[data-testid="beast-core-box"]:nth-child(2) > div > [data-testid="beast-core-button-link"] > span';
-/** 查看手机号按钮 */
-const checkPhoneSelector = '[data-testid="beast-core-table-td"] > div > [data-testid="beast-core-box"] > [data-testid="beast-core-button-link"] > span';
-/** 订单详情 */
-const orderDetailSelector = 'div.TB_innerMiddle_5-110-0 > div';
+export const cookiesJSONPath = 'cookies.json';
+export const targetUrl = 'https://mms.pinduoduo.com/orders/list';
 
-const startPuppeteer = async () => {
+/* -------------------------------------------------------------------------- */
+/*                             selector start                                 */
+/* -------------------------------------------------------------------------- */
+/** 待发货数量 */
+export const orderSumSelector = '.NewQuickTab_pdd-tab-title-current__1WJGI > span > span';
+/** 查看按钮 */
+export const checkSelector = '[data-testid="beast-core-box"]:nth-child(2) > div > [data-testid="beast-core-button-link"] > span';
+/** 查看手机号按钮 */
+export const checkPhoneSelector = '[data-testid="beast-core-table-td"] > div > [data-testid="beast-core-box"] > [data-testid="beast-core-button-link"] > span';
+/** 订单详情 */
+export const orderDetailSelector = 'div.TB_innerMiddle_5-110-0 > div';
+/** 订单编号 */
+export const _orderNumSelector = '.TB_bodyGroupCell_5-110-0:nth-child(2) div:nth-child(1) > div:nth-child(1) > span:nth-child(1)'
+/** 成交时间 */
+export const _transactionTimeSelector = '.TB_bodyGroupHeader_5-110-0:nth-child(1) div:nth-child(2) > span:nth-child(1)'
+/** 商品标题 */
+export const _productTitleSelector = '[data-testid="beast-core-table-td"]:nth-child(1) [data-testid="beast-core-ellipsis"]:nth-child(1) > .elli_outerWrapper_5-110-0:nth-child(1)'
+/** sku */
+export const _skuSelector = '[data-testid="beast-core-ellipsis"]:nth-child(4) > .elli_outerWrapper_5-110-0:nth-child(1)'
+/** 收货地址 */
+export const _addressSelector = '[data-testid="beast-core-box"]:nth-child(3) .elli_outerWrapper_5-110-0'
+/** 收货人 */
+export const _consigneeSelector = '[data-testid="beast-core-table-body-tr"]:nth-child(2) span:nth-child(2)'
+/** 分机号 */
+export const _extensionNumSelector = '[data-testid="beast-core-table-td"]:nth-child(6) [data-testid="beast-core-box"]:nth-child(1) [data-testid="beast-core-box"]:nth-child(2)'
+/* -------------------------------------------------------------------------- */
+/*                               selector end                                 */
+/* -------------------------------------------------------------------------- */
+
+export const initPuppeteer = async () => {
   puppeteer.use(pluginStealth());
   const browser = await puppeteer.launch({
     executablePath: 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe',
@@ -70,6 +91,12 @@ const startPuppeteer = async () => {
     fs.writeFileSync(cookiesJSONPath, JSON.stringify(cookies));
 
   }
+
+  return { browser, page }
+}
+
+const startPuppeteer = async () => {
+  const { browser, page } = await initPuppeteer()
   if (page.url() === targetUrl) {
 
     await page.waitForSelector(orderSumSelector, {
@@ -79,9 +106,7 @@ const startPuppeteer = async () => {
     // 使用 page.$() 方法执行 CSS 选择器查询
     const orderNumElementHandle = await page.$(orderSumSelector);
     if (orderNumElementHandle) {
-      // 并返回元素的文本内容
       const elementText = await orderNumElementHandle.evaluate((element: Element) => element.textContent);
-
       log.info('待发货订单数：', elementText);
     } else {
       log.info('未找到匹配的元素');
@@ -98,26 +123,7 @@ const startPuppeteer = async () => {
     await clickAllBtnWithQuery(page, checkPhoneSelector, 4000)
 
     const orderDetails = await page.$$(orderDetailSelector);
-    /* -------------------------------------------------------------------------- */
-    /*                             selector start                                 */
-    /* -------------------------------------------------------------------------- */
-    /** 订单编号 */
-    const _orderNumSelector = '.TB_bodyGroupCell_5-110-0:nth-child(2) div:nth-child(1) > div:nth-child(1) > span:nth-child(1)'
-    /** 成交时间 */
-    const _transactionTimeSelector = '.TB_bodyGroupHeader_5-110-0:nth-child(1) div:nth-child(2) > span:nth-child(1)'
-    /** 商品标题 */
-    const _productTitleSelector = '[data-testid="beast-core-table-td"]:nth-child(1) [data-testid="beast-core-ellipsis"]:nth-child(1) > .elli_outerWrapper_5-110-0:nth-child(1)'
-    /** sku */
-    const _skuSelector = '[data-testid="beast-core-ellipsis"]:nth-child(4) > .elli_outerWrapper_5-110-0:nth-child(1)'
-    /** 收货地址 */
-    const _addressSelector = '[data-testid="beast-core-box"]:nth-child(3) .elli_outerWrapper_5-110-0'
-    /** 收货人 */
-    const _consigneeSelector = '[data-testid="beast-core-table-body-tr"]:nth-child(2) span:nth-child(2)'
-    /** 分机号 */
-    const _extensionNumSelector = '[data-testid="beast-core-table-td"]:nth-child(6) [data-testid="beast-core-box"]:nth-child(1) [data-testid="beast-core-box"]:nth-child(2)'
-    /* -------------------------------------------------------------------------- */
-    /*                               selector end                                 */
-    /* -------------------------------------------------------------------------- */
+
     const orderData = []
     for (const od of orderDetails) {
       if (od) {
