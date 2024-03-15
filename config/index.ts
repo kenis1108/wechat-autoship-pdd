@@ -2,26 +2,27 @@
  * @Author: kenis 1836362346@qq.com
  * @Date: 2024-03-09 11:39:45
  * @LastEditors: kenis 1836362346@qq.com
- * @LastEditTime: 2024-03-14 15:20:23
+ * @LastEditTime: 2024-03-15 15:10:51
  * @FilePath: \wechaty-pdd-auto\src\config.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
 import os from 'os';
-const homedir = os.homedir()
+import { SpiderMode } from '../@types';
 /* -------------------------------------------------------------------------- */
 /*                                  file path                                 */
 /* -------------------------------------------------------------------------- */
+const homedir = os.homedir()
 /** 发货模板文件路径 */
 export const TEMPLATE_PATH = '发货模板.xlsx'
 /** 将微信信息处理后导出的文件路径 */
 export const WECHATY_XLSX_PATH = 'assets/wechaty.xlsx';
-/** automa数据转成xlsx文件路径 */
-export const AUTOMA_XLSX_PATH = 'assets/automa.xlsx';
+/** 爬虫获取的订单数据转成xlsx文件路径 */
+export const SPIDER_XLSX_PATH = 'assets/spider.xlsx';
 /** 最终生成的发货文件路径 */
 export const SHIPPING_PATH = 'assets/shipping.xlsx';
 /** automa导出的json文件路径 */
-export const AUTOMA_JSON_PATH = `${homedir}\\Downloads\\automa.json`;
 
+export const AUTOMA_JSON_PATH = `${homedir}\\Downloads\\automa.json`;
 /* -------------------------------------------------------------------------- */
 /*                                table columns                               */
 /* -------------------------------------------------------------------------- */
@@ -29,9 +30,9 @@ export const AUTOMA_JSON_PATH = `${homedir}\\Downloads\\automa.json`;
 export const WECHAT_HEADER_DATA = [
   ['快递单号', '收件人名称', '分机号', '接收时间']
 ]
-/** automa数据转成xlsx文件表头配置 */
-export const AUTOMA_HEADER_DATA = [
-  ['订单号', '商品标题', '收货人', '分机号', '收货地址']
+/** 爬虫获取的订单数据转成xlsx文件表头配置 */
+export const ORDER_HEADER_DATA = [
+  ['订单号', '商品标题', '收货人', '分机号', '收货地址', 'sku', '成交时间']
 ]
 /** 最终的发货文件的列配置 */
 export const SHIPPING_TEMPLATE_COLUMNS = ['订单号', '快递公司', '快递单号']
@@ -58,6 +59,12 @@ export const TWO_MSG_TIME_DIFFERENCE = 60 * 1000
 /** 多久执行一次获取automa.json */
 export const GET_AUTOMAJSONTIME = 30 * 60 * 1000
 
+/**
+ * 爬虫模式
+ * 1. automa
+ * 2. puppeteer
+ */
+export const SPIDER_MODE: SpiderMode = 'puppeteer'
 
 
 

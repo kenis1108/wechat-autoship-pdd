@@ -1,5 +1,5 @@
 $filePath= "assets/wechaty.xlsx"
-$filePath1= "assets/automa.xlsx"
+$filePath1= "assets/spider.xlsx"
 $filePath2= "assets/shipping.xlsx"
 
 echo "$(Get-Location)"

@@ -2,18 +2,18 @@
  * @Author: kenis 1836362346@qq.com
  * @Date: 2024-03-08 22:51:41
  * @LastEditors: kenis 1836362346@qq.com
- * @LastEditTime: 2024-03-14 15:48:41
+ * @LastEditTime: 2024-03-15 18:52:55
  * @FilePath: \wechaty-pdd-auto\src\xlsx.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
 import * as fs from 'fs';
 import * as XLSX from 'xlsx';
-import { DATA_NUM_MSG, DEBOUNCE_TIME, MERGE_COLUMNS, SHIPPING_PATH, TEMPLATE_PATH, WECHAT_HEADER_DATA } from './config';
-import { AUTOMA_HEADER_DATA, AUTOMA_JSON_PATH, AUTOMA_XLSX_PATH, WECHATY_XLSX_PATH } from "./config";
-import { isFileExists, readJsonFile, mergeTablesByColumn } from "./utils";
+import { DATA_NUM_MSG, DEBOUNCE_TIME, MERGE_COLUMNS, SHIPPING_PATH, TEMPLATE_PATH, WECHAT_HEADER_DATA } from '../../config';
+import { SPIDER_XLSX_PATH, WECHATY_XLSX_PATH } from "../../config";
+import { isFileExists, mergeTablesByColumn } from "../../utils";
 import _ from 'lodash';
 import { MessageInterface } from 'wechaty/impls';
-import { AppendDataToXlsxParams } from './types';
+import { AppendDataToXlsxParams } from '../../@types';
 import XlsxPopulate from 'xlsx-populate';
 import { log } from 'wechaty';
 
@@ -117,29 +117,13 @@ export function readExcelToJson(filePath: string): string[][] {
  * 合并两个文件生产新的符合拼多多发货模板的xlsx文件
  */
 async function mergeXlsx(wechatyInstance: MessageInterface) {
-  /** 第一步：将automa.json转成xlsx */
-  log.info('第一步：将automa.json转成新的automa.xlsx');
-  const automaData = await readJsonFile(AUTOMA_JSON_PATH)
-  if (automaData && automaData?.length > 0) {
-    if (isFileExists(AUTOMA_XLSX_PATH)) {
-      fs.unlink(AUTOMA_XLSX_PATH, (err) => {
-        if (err) {
-          log.error('Error deleting file:', err);
-        } else {
-          log.info(`删除${AUTOMA_XLSX_PATH}成功`);
-        }
-      })
-    }
-    await createNewXlsx([...AUTOMA_HEADER_DATA, ...automaData], AUTOMA_XLSX_PATH)
-  }
-
-  /** 第二步：给wechaty.xlsx去重 */
-  log.info('第二步：给wechaty.xlsx去重');
+  /** 给wechaty.xlsx去重 */
+  log.info('给wechaty.xlsx去重');
   await deduplicateXlsx(WECHATY_XLSX_PATH)
 
-  /** 第三步：合并automa.xlsx和wechaty.xlsx生成符合拼多多发货模板的xlsx */
-  log.info('第三步：合并automa.xlsx和wachaty.xlsx生成符合拼多多发货模板的xlsx');
-  mergeTwoXlsxBasedOnColumn(WECHATY_XLSX_PATH, AUTOMA_XLSX_PATH, wechatyInstance)
+  /** 合并spider.xlsx和wechaty.xlsx生成符合拼多多发货模板的xlsx */
+  log.info('合并spider.xlsx和wachaty.xlsx生成符合拼多多发货模板的xlsx');
+  mergeTwoXlsxBasedOnColumn(WECHATY_XLSX_PATH, SPIDER_XLSX_PATH, wechatyInstance)
 }
 
 /** 防抖：规定时间内如果没有接收到新的消息就启动合并文件的程序，有就重新计时 */
