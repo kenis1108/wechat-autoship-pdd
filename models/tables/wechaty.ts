@@ -1,5 +1,5 @@
 /**
- * 表名
+ * 获取微信信息表名
  */
 export const wechatyTable = 'wechaty'
 
@@ -9,9 +9,9 @@ export const wechatyTable = 'wechaty'
 export const createWechatyTableSql = `
   CREATE TABLE wechaty (
     id INTEGER PRIMARY KEY,
-    expressTrackingNum TEXT,  -- 快递单号
+    expressTrackingNum TEXT NOT NULL,  -- 快递单号
     consignee TEXT,  -- 收件人
-    extensionNum TEXT,  -- 分机号
+    extensionNum TEXT NOT NULL,  -- 分机号
     createdAt TEXT DEFAULT (datetime('now', 'localtime'))
   );
 `

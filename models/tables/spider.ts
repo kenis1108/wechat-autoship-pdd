@@ -1,5 +1,5 @@
 /**
- * 表名
+ * 爬取订单详情表名
  */
 export const spiderTable = 'spider'
 
@@ -9,13 +9,13 @@ export const spiderTable = 'spider'
 export const createSpiderTableSql = `
   CREATE TABLE spider (
     id INTEGER PRIMARY KEY,
-    orderNum TEXT,  -- 订单编号
+    orderNum TEXT NOT NULL,  -- 订单编号
     transactionTime TEXT, -- 成交时间
     productTitle TEXT,  -- 商品标题
     sku TEXT,  -- 商品属性
     address TEXT,  -- 收货地址
     consignee TEXT,  -- 收件人
-    extensionNum TEXT,  -- 分机号
+    extensionNum TEXT NOT NULL,  -- 分机号
     createdAt TEXT DEFAULT (datetime('now', 'localtime'))
   );
 `

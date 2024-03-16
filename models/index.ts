@@ -2,7 +2,7 @@
  * @Author: kenis 1836362346@qq.com
  * @Date: 2024-03-16 10:08:46
  * @LastEditors: kenis 1836362346@qq.com
- * @LastEditTime: 2024-03-16 13:09:37
+ * @LastEditTime: 2024-03-16 13:52:27
  * @FilePath: \wechat-autoship-pdd\models\index.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -11,6 +11,7 @@ import { log } from 'wechaty';
 import { createWechatyTableSql, wechatyTable } from './tables/wechaty';
 import { createSpiderTableSql, spiderTable } from './tables/spider';
 import { createShippingTableSql, shippingTable } from './tables/shipping';
+import { createPriceTableSql, priceTable } from './tables/price';
 
 interface Row {
   [key: string]: any;
@@ -47,6 +48,7 @@ class SQLiteDB {
    * @todo 可以遍历tables下的文件来创建每一张表
    */
   public init(): void {
+    this.createTableIfNotExists(priceTable, createPriceTableSql)
     this.createTableIfNotExists(wechatyTable, createWechatyTableSql)
     this.createTableIfNotExists(spiderTable, createSpiderTableSql)
     this.createTableIfNotExists(shippingTable, createShippingTableSql)
