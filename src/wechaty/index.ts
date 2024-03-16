@@ -7,6 +7,8 @@ import { MessageTimeDiff, delay, extractMatchingText } from "../../utils";
 import { exec } from "child_process";
 import { startSpider } from "../spider";
 import { appendDataToXlsx, debouncedMergeXlsx } from "../xlsx";
+import SQLiteDB from "../../models";
+import { WechatyTableRow, wechatyTable } from "../../models/tables/wechaty";
 
 const messageTimeDiff = new MessageTimeDiff()
 
@@ -41,9 +43,17 @@ export async function dataProcessing(msg: string, msgDateTime: string, wechatyIn
     wechatyInstance.say(NOT_IN_FORMAT_MSG)
     return
   } else {
+    const db = new SQLiteDB('autoship.db');
     msgArr.forEach((item) => {
-      resArr.push(storeTNumRNameENum(item, msgDateTime))
+      const result = storeTNumRNameENum(item, msgDateTime)
+      resArr.push(result)
+      db.insertOne<WechatyTableRow>(wechatyTable, {
+        expressTrackingNum: result[0],
+        consignee: result[1],
+        extensionNum: result[2]
+      })
     })
+    db.close()
   }
 
   await appendDataToXlsx({ sourceFilePath: WECHATY_XLSX_PATH, data: resArr, newFileheader: WECHAT_HEADER_DATA })

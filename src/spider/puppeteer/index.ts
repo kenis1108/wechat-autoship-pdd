@@ -3,7 +3,7 @@
 * @Author: kenis 1836362346@qq.com
 * @Date: 2024-03-13 18:35:20
  * @LastEditors: kenis 1836362346@qq.com
- * @LastEditTime: 2024-03-15 19:43:12
+ * @LastEditTime: 2024-03-16 13:32:16
 * @FilePath: \wechat-autoship-pdd\src\test.ts
 * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 */
@@ -15,6 +15,9 @@ import { log } from "wechaty";
 import { delay, isFileExists, removeCSS } from '../../../utils';
 import { createNewXlsx } from '../../xlsx';
 import { ORDER_HEADER_DATA, SPIDER_XLSX_PATH } from '../../../config';
+import SQLiteDB from '../../../models';
+import { ShippingTableRow } from '../../../models/tables/shipping';
+import { spiderTable, spiderTableRow } from '../../../models/tables/spider';
 
 export const cookiesJSONPath = 'cookies.json';
 export const targetUrl = 'https://mms.pinduoduo.com/orders/list';
@@ -125,6 +128,7 @@ const startPuppeteer = async () => {
     const orderDetails = await page.$$(orderDetailSelector);
 
     const orderData = []
+    const db = new SQLiteDB('autoship.db');
     for (const od of orderDetails) {
       if (od) {
         // 并返回元素的文本内容
@@ -146,6 +150,15 @@ const startPuppeteer = async () => {
           // log.info("🚀 ~ 分机号:", extensionNum)
           // ['订单号', '商品标题', '收货人', '分机号', '收货地址', 'sku', '成交时间']
           orderData.push([orderNum, productTitle, consignee, extensionNum, address, sku, transactionTime])
+          db.insertOne<spiderTableRow>(spiderTable, {
+            orderNum,
+            transactionTime,
+            productTitle,
+            sku,
+            address,
+            consignee,
+            extensionNum
+          })
         } else {
           continue
         }
@@ -153,6 +166,7 @@ const startPuppeteer = async () => {
         log.info('未找到匹配的元素');
       }
     }
+    db.close()
     log.info(JSON.stringify([...ORDER_HEADER_DATA, ...orderData]))
     await createNewXlsx([...ORDER_HEADER_DATA, ...orderData], SPIDER_XLSX_PATH)
   }
