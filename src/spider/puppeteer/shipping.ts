@@ -1,3 +1,11 @@
+/*
+ * @Author: kenis 1836362346@qq.com
+ * @Date: 2024-03-15 15:46:48
+ * @LastEditors: kenis 1836362346@qq.com
+ * @LastEditTime: 2024-03-16 22:44:52
+ * @FilePath: \wechat-autoship-pdd\src\spider\puppeteer\shipping.ts
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+ */
 import { log } from "wechaty";
 import { SHIPPING_PATH } from "../../../config";
 import { _orderNumSelector, getTextWithJSHandle, initPuppeteer, orderDetailSelector } from "."
@@ -18,7 +26,7 @@ export function findThirdElement(arr: any[][], target: string): string | null {
   return null; // 如果找不到匹配的值，返回 null
 }
 
-(async () => {
+export default async () => {
   // 获取shipping.xlsx的数据
   // 读取第一个 Excel 文件
   const shippingData = readExcelToJson(SHIPPING_PATH).slice(2);
@@ -26,10 +34,10 @@ export function findThirdElement(arr: any[][], target: string): string | null {
   const { browser, page } = await initPuppeteer()
   await delay(2000)
   // // 滚动页面到右边和底部
-  // await page.evaluate(() => {
-  //   window.scrollTo(document.body.scrollWidth, document.body.scrollHeight);
-  // });
-  // await delay(2000)
+  await page.evaluate(() => {
+    window.scrollTo(document.body.scrollWidth, document.body.scrollHeight);
+  });
+  await delay(2000)
   const orderDetails = await page.$$(orderDetailSelector);
   for (const [index, od] of orderDetails.entries()) {
     if (od) {
@@ -69,12 +77,15 @@ export function findThirdElement(arr: any[][], target: string): string | null {
               await delay(2000)
               // 第七步：点击确认发货按钮
               await modalConfirmBtnHandle.click()
-              // const modalConfirmBtnText = await modalConfirmBtnHandle.evaluate((element: Element) =>
+              await delay(2000)
+              // 第八步：找到并点击继续发货按钮
+              const continueShippingBtnHandle = await page.$('[data-tracking-click-viewid="makesure"][data-tracking-impr-viewid="makesure"]')
+              // const continueShippingBtnText = await continueShippingBtnHandle.evaluate((element: Element) =>
               //   element.textContent
               // )
+              // console.log("🚀 ~ continueShippingBtnText:", continueShippingBtnText)
+              await continueShippingBtnHandle.click()
               await delay(10000)
-
-
             }
           }
           await page.screenshot({ path: `example${index}.png` });
@@ -86,5 +97,5 @@ export function findThirdElement(arr: any[][], target: string): string | null {
       log.info('未找到匹配的元素');
     }
   }
-  // await browser.close()
-})()
+  await browser.close()
+}

@@ -2,7 +2,7 @@
  * @Author: kenis 1836362346@qq.com
  * @Date: 2024-03-08 22:51:41
  * @LastEditors: kenis 1836362346@qq.com
- * @LastEditTime: 2024-03-15 19:33:22
+ * @LastEditTime: 2024-03-16 22:23:57
  * @FilePath: \wechaty-pdd-auto\src\xlsx.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -16,6 +16,8 @@ import { MessageInterface } from 'wechaty/impls';
 import { AppendDataToXlsxParams } from '../../@types';
 import XlsxPopulate from 'xlsx-populate';
 import { log } from 'wechaty';
+import SQLiteDB from '../../models';
+import { ShippingTableRow, shippingTable } from '../../models/tables/shipping';
 
 /**
  * 新建xlsx文件
@@ -90,12 +92,22 @@ export const mergeTwoXlsxBasedOnColumn = (filePath1: string, filePath2: string, 
   if (mergeData.length < 2) {
     return
   }
+  const data =mergeData.slice(1) 
   // 读取发货模板，然后将新数据插入发货模板的最后面并生成一个新的文件
   appendDataToXlsx({
     sourceFilePath: TEMPLATE_PATH,
-    data: mergeData.slice(1),
+    data,
     saveNewFilePathAfterAddingData: SHIPPING_PATH
   })
+
+  const db = new SQLiteDB('autoship.db');
+  data.forEach(item=>{
+    db.insertOne<ShippingTableRow>(shippingTable,{
+      orderNum: item[0],
+      expressTrackingNum: item[2]
+    })
+  })
+  db.close()
 }
 
 /** 读取xlsx数据转成js对象 */
