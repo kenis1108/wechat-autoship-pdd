@@ -70,4 +70,5 @@ export const SPIDER_MODE: SpiderMode = 'puppeteer'
 
 
 
-
+/** 拼多多后台订单查询地址 */
+export const ORDER_QUERY_URL = 'https://mms.pinduoduo.com/orders/list';

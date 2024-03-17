@@ -24,3 +24,8 @@ export interface WechatyTableRow {
   /** 分机号 */
   extensionNum: string
 }
+
+export default {
+  tableName: wechatyTable,
+  sql: createWechatyTableSql,
+}

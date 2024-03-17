@@ -2,7 +2,7 @@
  * @Author: kenis 1836362346@qq.com
  * @Date: 2024-03-16 11:48:04
  * @LastEditors: kenis 1836362346@qq.com
- * @LastEditTime: 2024-03-16 14:12:56
+ * @LastEditTime: 2024-03-17 17:04:19
  * @FilePath: \wechat-autoship-pdd\models\tables\shipping.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -27,4 +27,9 @@ export interface ShippingTableRow {
   orderNum: string;
   /** 快递单号 */
   expressTrackingNum: string;
+}
+
+export default {
+  tableName: shippingTable,
+  sql: createShippingTableSql,
 }

@@ -7,10 +7,11 @@
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
 import { log } from "wechaty";
-import { SHIPPING_PATH } from "../../../config";
+import { ORDER_QUERY_URL, SHIPPING_PATH } from "../../../config";
 import { _orderNumSelector, getTextWithJSHandle, initPuppeteer, orderDetailSelector } from "."
 import { readExcelToJson } from "../../xlsx";
 import { delay } from "../../../utils";
+
 
 /** 发货按钮 */
 export const shippingBtnSelector = '[data-testid="beast-core-button"]:nth-child(1)';
@@ -26,12 +27,13 @@ export function findThirdElement(arr: any[][], target: string): string | null {
   return null; // 如果找不到匹配的值，返回 null
 }
 
+/** 自动发货 */
 export default async () => {
   // 获取shipping.xlsx的数据
   // 读取第一个 Excel 文件
   const shippingData = readExcelToJson(SHIPPING_PATH).slice(2);
   console.log("🚀 ~ shippingData:", shippingData)
-  const { browser, page } = await initPuppeteer()
+  const { browser, page } = await initPuppeteer(ORDER_QUERY_URL)
   await delay(2000)
   // // 滚动页面到右边和底部
   await page.evaluate(() => {

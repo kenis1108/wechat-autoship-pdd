@@ -3,7 +3,7 @@
 * @Author: kenis 1836362346@qq.com
 * @Date: 2024-03-13 18:35:20
  * @LastEditors: kenis 1836362346@qq.com
- * @LastEditTime: 2024-03-16 13:32:16
+ * @LastEditTime: 2024-03-17 12:06:25
 * @FilePath: \wechat-autoship-pdd\src\test.ts
 * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 */
@@ -14,13 +14,12 @@ import fs from "fs";
 import { log } from "wechaty";
 import { delay, isFileExists, removeCSS } from '../../../utils';
 import { createNewXlsx } from '../../xlsx';
-import { ORDER_HEADER_DATA, SPIDER_XLSX_PATH } from '../../../config';
+import { ORDER_HEADER_DATA, ORDER_QUERY_URL, SPIDER_XLSX_PATH } from '../../../config';
 import SQLiteDB from '../../../models';
-import { ShippingTableRow } from '../../../models/tables/shipping';
 import { spiderTable, spiderTableRow } from '../../../models/tables/spider';
 
 export const cookiesJSONPath = 'cookies.json';
-export const targetUrl = 'https://mms.pinduoduo.com/orders/list';
+
 
 /* -------------------------------------------------------------------------- */
 /*                             selector start                                 */
@@ -51,7 +50,7 @@ export const _extensionNumSelector = '[data-testid="beast-core-table-td"]:nth-ch
 /*                               selector end                                 */
 /* -------------------------------------------------------------------------- */
 
-export const initPuppeteer = async () => {
+export const initPuppeteer = async (targetUrl: string) => {
   puppeteer.use(pluginStealth());
   const browser = await puppeteer.launch({
     executablePath: 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe',
@@ -82,7 +81,7 @@ export const initPuppeteer = async () => {
     await page.goto(targetUrl);
 
     log.info(page.url())
-    log.info('请手动登录拼多多后台')
+    log.info('请手动登录')
     // 等待手动登录成功并获取页面上的 Cookie
     await page.waitForNavigation({
       timeout: 5 * 60000
@@ -93,14 +92,16 @@ export const initPuppeteer = async () => {
     // 将 Cookie 写入到文件中
     fs.writeFileSync(cookiesJSONPath, JSON.stringify(cookies));
 
+    log.info('已经登录')
   }
 
   return { browser, page }
 }
 
+/** 爬取订单详情数据 */
 const startPuppeteer = async () => {
-  const { browser, page } = await initPuppeteer()
-  if (page.url() === targetUrl) {
+  const { browser, page } = await initPuppeteer(ORDER_QUERY_URL)
+  if (page.url() === ORDER_QUERY_URL) {
 
     await page.waitForSelector(orderSumSelector, {
       visible: true
