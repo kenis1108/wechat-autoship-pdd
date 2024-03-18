@@ -3,7 +3,7 @@
 * @Author: kenis 1836362346@qq.com
 * @Date: 2024-03-13 18:35:20
  * @LastEditors: kenis 1836362346@qq.com
- * @LastEditTime: 2024-03-17 21:55:28
+ * @LastEditTime: 2024-03-18 20:39:03
 * @FilePath: \wechat-autoship-pdd\src\test.ts
 * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 */
@@ -14,9 +14,9 @@ import fs from "fs";
 import { log } from "wechaty";
 import { delay, isFileExists, removeCSS } from '../../../utils';
 import { createNewXlsx } from '../../xlsx';
-import { ORDER_HEADER_DATA, ORDER_QUERY_URL, ORDER_XLSX_PATH } from '../../../config';
+import { ORDERQUERY_HEADER_DATA, ORDER_QUERY_URL, ORDERQUERY_XLSX_PATH } from '../../../config';
 import SQLiteDB from '../../../models';
-import { orderTable, orderTableRow } from '../../../models/tables/order';
+import { orderQueryTable, orderQueryTableRow } from '../../../models/tables/orderQuery';
 
 export const cookiesJSONPath = 'cookies.json';
 
@@ -151,7 +151,7 @@ const startPuppeteer = async () => {
           // log.info("🚀 ~ 分机号:", extensionNum)
           // ['订单号', '商品标题', '收货人', '分机号', '收货地址', 'sku', '成交时间']
           orderData.push([orderNum, productTitle, consignee, extensionNum, address, sku, transactionTime])
-          db.insertOne<orderTableRow>(orderTable, {
+          db.insertOne<orderQueryTableRow>(orderQueryTable, {
             orderNum,
             transactionTime,
             productTitle,
@@ -168,8 +168,8 @@ const startPuppeteer = async () => {
       }
     }
     db.close()
-    log.info(JSON.stringify([...ORDER_HEADER_DATA, ...orderData]))
-    await createNewXlsx([...ORDER_HEADER_DATA, ...orderData], ORDER_XLSX_PATH)
+    log.info(JSON.stringify([...ORDERQUERY_HEADER_DATA, ...orderData]))
+    await createNewXlsx([...ORDERQUERY_HEADER_DATA, ...orderData], ORDERQUERY_XLSX_PATH)
   }
 
   await browser.close();

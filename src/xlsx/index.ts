@@ -2,14 +2,14 @@
  * @Author: kenis 1836362346@qq.com
  * @Date: 2024-03-08 22:51:41
  * @LastEditors: kenis 1836362346@qq.com
- * @LastEditTime: 2024-03-18 12:54:06
+ * @LastEditTime: 2024-03-18 20:40:23
  * @FilePath: \wechaty-pdd-auto\src\xlsx.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
 import * as fs from 'fs';
 import * as XLSX from 'xlsx';
 import { DATA_NUM_MSG, DEBOUNCE_TIME, MERGE_COLUMNS, SHIPPING_PATH, TEMPLATE_PATH, WECHAT_HEADER_DATA } from '../../config';
-import { ORDER_XLSX_PATH, WECHATY_XLSX_PATH } from "../../config";
+import { ORDERQUERY_XLSX_PATH, WECHATY_XLSX_PATH } from "../../config";
 import { isFileExists, mergeTablesByColumn } from "../../utils";
 import _ from 'lodash';
 import { MessageInterface } from 'wechaty/impls';
@@ -137,8 +137,8 @@ async function mergeXlsx(wechatyInstance: MessageInterface) {
   await deduplicateXlsx(WECHATY_XLSX_PATH)
 
   /** 合并order.xlsx和wechaty.xlsx生成符合拼多多发货模板的xlsx */
-  log.info('合并order.xlsx和wachaty.xlsx生成符合拼多多发货模板的xlsx');
-  mergeTwoXlsxBasedOnColumn(WECHATY_XLSX_PATH, ORDER_XLSX_PATH, wechatyInstance)
+  log.info('合并orderQuery.xlsx和wachaty.xlsx生成符合拼多多发货模板的xlsx');
+  mergeTwoXlsxBasedOnColumn(WECHATY_XLSX_PATH, ORDERQUERY_XLSX_PATH, wechatyInstance)
 }
 
 /** 防抖：规定时间内如果没有接收到新的消息就启动合并文件的程序，有就重新计时 */

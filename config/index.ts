@@ -17,7 +17,7 @@ export const TEMPLATE_PATH = '发货模板.xlsx'
 /** 将微信信息处理后导出的文件路径 */
 export const WECHATY_XLSX_PATH = 'assets/wechaty.xlsx';
 /** 爬虫获取的订单数据转成xlsx文件路径 */
-export const ORDER_XLSX_PATH = 'assets/order.xlsx';
+export const ORDERQUERY_XLSX_PATH = 'assets/orderQuery.xlsx';
 /** 最终生成的发货文件路径 */
 export const SHIPPING_PATH = 'assets/shipping.xlsx';
 /** automa导出的json文件路径 */
@@ -31,7 +31,7 @@ export const WECHAT_HEADER_DATA = [
   ['快递单号', '收件人名称', '分机号', '接收时间']
 ]
 /** 爬虫获取的订单数据转成xlsx文件表头配置 */
-export const ORDER_HEADER_DATA = [
+export const ORDERQUERY_HEADER_DATA = [
   ['订单号', '商品标题', '收货人', '分机号', '收货地址', 'sku', '成交时间']
 ]
 /** 最终的发货文件的列配置 */

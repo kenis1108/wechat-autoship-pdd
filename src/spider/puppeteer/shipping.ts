@@ -2,7 +2,7 @@
  * @Author: kenis 1836362346@qq.com
  * @Date: 2024-03-15 15:46:48
  * @LastEditors: kenis 1836362346@qq.com
- * @LastEditTime: 2024-03-16 22:44:52
+ * @LastEditTime: 2024-03-18 20:48:35
  * @FilePath: \wechat-autoship-pdd\src\spider\puppeteer\shipping.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -30,7 +30,6 @@ export function findThirdElement(arr: any[][], target: string): string | null {
 /** 自动发货 */
 export default async () => {
   // 获取shipping.xlsx的数据
-  // 读取第一个 Excel 文件
   const shippingData = readExcelToJson(SHIPPING_PATH).slice(2);
   console.log("🚀 ~ shippingData:", shippingData)
   const { browser, page } = await initPuppeteer(ORDER_QUERY_URL)
