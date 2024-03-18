@@ -9,7 +9,7 @@ export const wechatyTable = 'wechaty'
 export const createWechatyTableSql = `
   CREATE TABLE wechaty (
     id INTEGER PRIMARY KEY,
-    expressTrackingNum TEXT NOT NULL,  -- 快递单号
+    expressTrackingNum TEXT NOT NULL UNIQUE,  -- 快递单号
     consignee TEXT,  -- 收件人
     extensionNum TEXT NOT NULL,  -- 分机号
     createdAt TEXT DEFAULT (datetime('now', 'localtime'))

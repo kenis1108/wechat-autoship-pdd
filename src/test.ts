@@ -1,2 +1,3 @@
-import startAutoma from './spider/automa'
-startAutoma(false)
+import bot from "./wechaty";
+
+bot.start()

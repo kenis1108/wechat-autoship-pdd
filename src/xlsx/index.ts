@@ -2,7 +2,7 @@
  * @Author: kenis 1836362346@qq.com
  * @Date: 2024-03-08 22:51:41
  * @LastEditors: kenis 1836362346@qq.com
- * @LastEditTime: 2024-03-16 22:23:57
+ * @LastEditTime: 2024-03-18 12:54:06
  * @FilePath: \wechaty-pdd-auto\src\xlsx.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -92,7 +92,7 @@ export const mergeTwoXlsxBasedOnColumn = (filePath1: string, filePath2: string, 
   if (mergeData.length < 2) {
     return
   }
-  const data =mergeData.slice(1) 
+  const data = mergeData.slice(1)
   // 读取发货模板，然后将新数据插入发货模板的最后面并生成一个新的文件
   appendDataToXlsx({
     sourceFilePath: TEMPLATE_PATH,
@@ -101,8 +101,8 @@ export const mergeTwoXlsxBasedOnColumn = (filePath1: string, filePath2: string, 
   })
 
   const db = new SQLiteDB('autoship.db');
-  data.forEach(item=>{
-    db.insertOne<ShippingTableRow>(shippingTable,{
+  data.forEach(item => {
+    db.insertOne<ShippingTableRow>(shippingTable, {
       orderNum: item[0],
       expressTrackingNum: item[2]
     })
@@ -112,7 +112,7 @@ export const mergeTwoXlsxBasedOnColumn = (filePath1: string, filePath2: string, 
 
 /** 读取xlsx数据转成js对象 */
 export function readExcelToJson(filePath: string): string[][] {
-  if(!isFileExists(filePath)){
+  if (!isFileExists(filePath)) {
     return []
   }
   // 读取 Excel 文件
@@ -159,25 +159,29 @@ export async function deduplicateXlsx(filePath: string) {
   const columns = WECHAT_HEADER_DATA[0]
   const deduplicatedRows: any[] = [];
 
-  rows.forEach((item) => {
-    // 查找是否存在与当前行相同的前三列记录
-    const duplicateIndex = deduplicatedRows.findIndex(
-      (row) =>
-        row[columns[0]] === item[columns[0]] &&
-        row[columns[1]] === item[columns[1]] &&
-        row[columns[2]] === item[columns[2]]
-    );
-
-    if (duplicateIndex === -1) {
-      // 如果没有重复项，则直接添加当前记录
+  rows.forEach((item, index) => {
+    if (index === 0) {
       deduplicatedRows.push(item);
     } else {
-      // 如果存在重复项，则比较时间戳并保留较晚的记录
-      const existingTimestamp = new Date(deduplicatedRows[duplicateIndex][columns[3]]);
-      const currentTimestamp = new Date(item[columns[3]]);
+      // 查找是否存在与当前行相同的前三列记录
+      const duplicateIndex = deduplicatedRows.findIndex(
+        (row) =>
+          row[columns[0]] === item[columns[0]] &&
+          row[columns[1]] === item[columns[1]] &&
+          row[columns[2]] === item[columns[2]]
+      );
 
-      if (currentTimestamp > existingTimestamp) {
-        deduplicatedRows[duplicateIndex] = item;
+      if (duplicateIndex === -1) {
+        // 如果没有重复项，则直接添加当前记录
+        deduplicatedRows.push(item);
+      } else {
+        // 如果存在重复项，则比较时间戳并保留较晚的记录
+        const existingTimestamp = new Date(deduplicatedRows[duplicateIndex][columns[3]]);
+        const currentTimestamp = new Date(item[columns[3]]);
+
+        if (currentTimestamp > existingTimestamp) {
+          deduplicatedRows[duplicateIndex] = item;
+        }
       }
     }
   });
@@ -187,13 +191,6 @@ export async function deduplicateXlsx(filePath: string) {
     Sheets: { [sheetName]: XLSX.utils.json_to_sheet(deduplicatedRows) },
     SheetNames: [sheetName],
   };
-
-  // 删除原来的文件
-  try {
-    fs.unlinkSync(filePath);
-  } catch (err) {
-    log.error('Error deleting file:', err);
-  }
 
   // 将新工作簿保存到新文件中
   XLSX.writeFile(newWorkbook, filePath);

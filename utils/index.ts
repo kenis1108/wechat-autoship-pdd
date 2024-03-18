@@ -2,7 +2,7 @@
  * @Author: kenis 1836362346@qq.com
  * @Date: 2024-03-08 20:21:59
  * @LastEditors: kenis 1836362346@qq.com
- * @LastEditTime: 2024-03-15 19:09:33
+ * @LastEditTime: 2024-03-18 11:57:53
  * @FilePath: \wechaty-pdd-auto\src\utils.ts
  * @Description: 存放工具函数的文件
  */
@@ -23,19 +23,15 @@ import { log } from "wechaty";
  */
 export function extractMatchingText(input: string,regex:RegExp): string[] {
   const lines = input.split(/\n/).filter(Boolean);
-
   const matchingTextArray: string[] = [];
-
   for (const line of lines) {
     const words = line.split(/\s+/).filter(Boolean);
-
     for (const word of words) {
       if (regex.test(word)) {
         matchingTextArray.push(word);
       }
     }
   }
-
   return matchingTextArray;
 }
 
