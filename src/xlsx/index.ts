@@ -9,7 +9,7 @@
 import * as fs from 'fs';
 import * as XLSX from 'xlsx';
 import { DATA_NUM_MSG, DEBOUNCE_TIME, MERGE_COLUMNS, SHIPPING_PATH, TEMPLATE_PATH, WECHAT_HEADER_DATA } from '../../config';
-import { SPIDER_XLSX_PATH, WECHATY_XLSX_PATH } from "../../config";
+import { ORDER_XLSX_PATH, WECHATY_XLSX_PATH } from "../../config";
 import { isFileExists, mergeTablesByColumn } from "../../utils";
 import _ from 'lodash';
 import { MessageInterface } from 'wechaty/impls';
@@ -136,9 +136,9 @@ async function mergeXlsx(wechatyInstance: MessageInterface) {
   log.info('给wechaty.xlsx去重');
   await deduplicateXlsx(WECHATY_XLSX_PATH)
 
-  /** 合并spider.xlsx和wechaty.xlsx生成符合拼多多发货模板的xlsx */
-  log.info('合并spider.xlsx和wachaty.xlsx生成符合拼多多发货模板的xlsx');
-  mergeTwoXlsxBasedOnColumn(WECHATY_XLSX_PATH, SPIDER_XLSX_PATH, wechatyInstance)
+  /** 合并order.xlsx和wechaty.xlsx生成符合拼多多发货模板的xlsx */
+  log.info('合并order.xlsx和wachaty.xlsx生成符合拼多多发货模板的xlsx');
+  mergeTwoXlsxBasedOnColumn(WECHATY_XLSX_PATH, ORDER_XLSX_PATH, wechatyInstance)
 }
 
 /** 防抖：规定时间内如果没有接收到新的消息就启动合并文件的程序，有就重新计时 */

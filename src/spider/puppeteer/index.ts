@@ -14,9 +14,9 @@ import fs from "fs";
 import { log } from "wechaty";
 import { delay, isFileExists, removeCSS } from '../../../utils';
 import { createNewXlsx } from '../../xlsx';
-import { ORDER_HEADER_DATA, ORDER_QUERY_URL, SPIDER_XLSX_PATH } from '../../../config';
+import { ORDER_HEADER_DATA, ORDER_QUERY_URL, ORDER_XLSX_PATH } from '../../../config';
 import SQLiteDB from '../../../models';
-import { spiderTable, spiderTableRow } from '../../../models/tables/spider';
+import { orderTable, orderTableRow } from '../../../models/tables/order';
 
 export const cookiesJSONPath = 'cookies.json';
 
@@ -151,7 +151,7 @@ const startPuppeteer = async () => {
           // log.info("🚀 ~ 分机号:", extensionNum)
           // ['订单号', '商品标题', '收货人', '分机号', '收货地址', 'sku', '成交时间']
           orderData.push([orderNum, productTitle, consignee, extensionNum, address, sku, transactionTime])
-          db.insertOne<spiderTableRow>(spiderTable, {
+          db.insertOne<orderTableRow>(orderTable, {
             orderNum,
             transactionTime,
             productTitle,
@@ -169,7 +169,7 @@ const startPuppeteer = async () => {
     }
     db.close()
     log.info(JSON.stringify([...ORDER_HEADER_DATA, ...orderData]))
-    await createNewXlsx([...ORDER_HEADER_DATA, ...orderData], SPIDER_XLSX_PATH)
+    await createNewXlsx([...ORDER_HEADER_DATA, ...orderData], ORDER_XLSX_PATH)
   }
 
   await browser.close();

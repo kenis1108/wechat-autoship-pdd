@@ -7,7 +7,7 @@
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
 import { SpiderMode } from "../../@types";
-import { SPIDER_XLSX_PATH } from "../../config";
+import { ORDER_XLSX_PATH } from "../../config";
 import { getFileCreateTime } from "../../utils";
 import startAutoma from "./automa";
 import startPuppeteer from "./puppeteer";
@@ -18,6 +18,6 @@ const spiderMap = {
 }
 
 export async function startSpider(mode: SpiderMode) {
-  const isGenHasOneHour = await getFileCreateTime(SPIDER_XLSX_PATH)
+  const isGenHasOneHour = await getFileCreateTime(ORDER_XLSX_PATH)
   isGenHasOneHour && await spiderMap[mode]()
 }

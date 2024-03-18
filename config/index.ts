@@ -2,7 +2,7 @@
  * @Author: kenis 1836362346@qq.com
  * @Date: 2024-03-09 11:39:45
  * @LastEditors: kenis 1836362346@qq.com
- * @LastEditTime: 2024-03-17 21:58:51
+ * @LastEditTime: 2024-03-18 13:30:12
  * @FilePath: \wechaty-pdd-auto\src\config.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -17,7 +17,7 @@ export const TEMPLATE_PATH = '发货模板.xlsx'
 /** 将微信信息处理后导出的文件路径 */
 export const WECHATY_XLSX_PATH = 'assets/wechaty.xlsx';
 /** 爬虫获取的订单数据转成xlsx文件路径 */
-export const SPIDER_XLSX_PATH = 'assets/spider.xlsx';
+export const ORDER_XLSX_PATH = 'assets/order.xlsx';
 /** 最终生成的发货文件路径 */
 export const SHIPPING_PATH = 'assets/shipping.xlsx';
 /** automa导出的json文件路径 */

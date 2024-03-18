@@ -2,20 +2,20 @@
  * @Author: kenis 1836362346@qq.com
  * @Date: 2024-03-16 11:48:03
  * @LastEditors: kenis 1836362346@qq.com
- * @LastEditTime: 2024-03-18 11:30:38
- * @FilePath: \wechat-autoship-pdd\models\tables\spider.ts
+ * @LastEditTime: 2024-03-18 13:26:26
+ * @FilePath: \wechat-autoship-pdd\models\tables\order.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
 /**
  * 爬取订单详情表名
  */
-export const spiderTable = 'spider'
+export const orderTable = 'order'
 
 /**
- * spider建表语句
+ * order建表语句
  */
-export const createSpiderTableSql = `
-  CREATE TABLE spider (
+export const createOrderTableSql = `
+  CREATE TABLE order (
     id INTEGER PRIMARY KEY,
     orderNum TEXT NOT NULL UNIQUE,  -- 订单编号
     transactionTime TEXT, -- 成交时间
@@ -27,7 +27,7 @@ export const createSpiderTableSql = `
     createdAt TEXT DEFAULT (datetime('now', 'localtime'))
   );
 `
-export interface spiderTableRow {
+export interface orderTableRow {
   /** 订单编号 */
   orderNum: string;
   /** 成交时间 */
@@ -45,6 +45,6 @@ export interface spiderTableRow {
 }
 
 export default {
-  tableName: spiderTable,
-  sql: createSpiderTableSql,
+  tableName: orderTable,
+  sql: createOrderTableSql,
 }
