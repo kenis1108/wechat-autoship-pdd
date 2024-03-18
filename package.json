@@ -4,7 +4,6 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "prestart": "powershell scripts/prestart.ps1",
     "start": "nodemon --ext ts src/index.ts",
     "test": "nodemon --ext ts src/test.ts",
     "keymousego": "powershell scripts/start_kmg.ps1",

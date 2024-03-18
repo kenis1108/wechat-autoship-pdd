@@ -3,7 +3,7 @@
 * @Author: kenis 1836362346@qq.com
 * @Date: 2024-03-13 18:35:20
  * @LastEditors: kenis 1836362346@qq.com
- * @LastEditTime: 2024-03-17 12:06:25
+ * @LastEditTime: 2024-03-17 21:55:28
 * @FilePath: \wechat-autoship-pdd\src\test.ts
 * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 */
@@ -56,7 +56,7 @@ export const initPuppeteer = async (targetUrl: string) => {
     executablePath: 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe',
     headless: false,
     // defaultViewport: { width: 1920, height: 1080 },
-    // slowMo: 100,
+    slowMo: 100,
     // devtools: true,
     args: [
       '--no-sandbox',
@@ -195,7 +195,11 @@ export async function clickAllBtnWithQuery(page: any, selector: string, delay_nu
   const checks = await page.$$(selector);
   // 循环遍历所有匹配的元素，并模拟点击操作
   for (const c of checks) {
+    // 移动到元素可见的区域
+    await c.scrollIntoView();
     await c.click();
+    await delay(800)
+
   }
   log.info('完成点击所有匹配的元素')
   await delay(delay_num)
