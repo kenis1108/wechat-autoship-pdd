@@ -2,7 +2,7 @@
  * @Author: kenis 1836362346@qq.com
  * @Date: 2024-03-09 11:39:45
  * @LastEditors: kenis 1836362346@qq.com
- * @LastEditTime: 2024-03-18 13:30:12
+ * @LastEditTime: 2024-03-20 12:05:54
  * @FilePath: \wechaty-pdd-auto\src\config.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -42,7 +42,7 @@ export const MERGE_COLUMNS = '分机号'
 /* -------------------------------------------------------------------------- */
 /*                                   prompt                                   */
 /* -------------------------------------------------------------------------- */
-export const NOT_IN_FORMAT_MSG = '提示：格式不符合要求\n\n格式要求：\n78771934918934郭海莉[9964]\n\n（多个单号可以使用空格和换行隔开）'
+export const NOT_IN_FORMAT_MSG = '提示：输入的信息没有找到快递单号'
 /** 提示找到多少条匹配的订单 */
 export const DATA_NUM_MSG = (num: number) => num ? `提示：找到${num}条匹配的订单，开始上传发货信息` : `提示：没有找到单号匹配的订单`
 

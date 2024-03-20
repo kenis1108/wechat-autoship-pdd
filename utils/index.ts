@@ -2,7 +2,7 @@
  * @Author: kenis 1836362346@qq.com
  * @Date: 2024-03-08 20:21:59
  * @LastEditors: kenis 1836362346@qq.com
- * @LastEditTime: 2024-03-18 11:57:53
+ * @LastEditTime: 2024-03-20 11:56:53
  * @FilePath: \wechaty-pdd-auto\src\utils.ts
  * @Description: 存放工具函数的文件
  */
@@ -17,24 +17,6 @@ import { log } from "wechaty";
 /* -------------------------------------------------------------------------- */
 /*                               String start                                 */
 /* -------------------------------------------------------------------------- */
-/** 
- * 使用正则匹配一段文本中所有符合的文本，返回数组
- * filter(Boolean) 的效果是将数组中的空字符串移除。
- */
-export function extractMatchingText(input: string,regex:RegExp): string[] {
-  const lines = input.split(/\n/).filter(Boolean);
-  const matchingTextArray: string[] = [];
-  for (const line of lines) {
-    const words = line.split(/\s+/).filter(Boolean);
-    for (const word of words) {
-      if (regex.test(word)) {
-        matchingTextArray.push(word);
-      }
-    }
-  }
-  return matchingTextArray;
-}
-
 /** 
  * 移除字符串中类似css样式的文本
  */
