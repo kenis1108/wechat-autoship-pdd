@@ -3,7 +3,7 @@
 * @Author: kenis 1836362346@qq.com
 * @Date: 2024-03-13 18:35:20
  * @LastEditors: kenis 1836362346@qq.com
- * @LastEditTime: 2024-03-18 20:39:03
+ * @LastEditTime: 2024-03-20 18:18:29
 * @FilePath: \wechat-autoship-pdd\src\test.ts
 * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 */
@@ -13,8 +13,7 @@ import pluginStealth from 'puppeteer-extra-plugin-stealth';
 import fs from "fs";
 import { log } from "wechaty";
 import { delay, isFileExists, removeCSS } from '../../../utils';
-import { createNewXlsx } from '../../xlsx';
-import { ORDERQUERY_HEADER_DATA, ORDER_QUERY_URL, ORDERQUERY_XLSX_PATH } from '../../../config';
+import { ORDER_QUERY_URL } from '../../../config';
 import SQLiteDB from '../../../models';
 import { orderQueryTable, orderQueryTableRow } from '../../../models/tables/orderQuery';
 
@@ -168,10 +167,7 @@ const startPuppeteer = async () => {
       }
     }
     db.close()
-    log.info(JSON.stringify([...ORDERQUERY_HEADER_DATA, ...orderData]))
-    await createNewXlsx([...ORDERQUERY_HEADER_DATA, ...orderData], ORDERQUERY_XLSX_PATH)
   }
-
   await browser.close();
 };
 

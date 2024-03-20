@@ -118,6 +118,23 @@ export function delay(milliseconds: number) {
 }
 
 /**
+ * 删除文件的函数
+ * @param filePath 要删除的文件路径
+ * @returns 如果删除成功，则返回 true；否则返回 false
+ */
+export async function deleteFile(filePath: string): Promise<boolean> {
+  try {
+    // 使用 fs.promises.unlink() 方法删除文件
+    await fs.promises.unlink(filePath);
+    console.log(`文件 ${filePath} 删除成功`);
+    return true;
+  } catch (error) {
+    console.error(`删除文件 ${filePath} 出错:`, error);
+    return false;
+  }
+}
+
+/**
  * 对比两次接收消息的时间类
  * @example
  * const messageTimeDiff = new MessageTimeDiff();
