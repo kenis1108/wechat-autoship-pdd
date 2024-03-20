@@ -2,7 +2,7 @@
  * @Author: kenis 1836362346@qq.com
  * @Date: 2024-03-15 15:12:37
  * @LastEditors: kenis 1836362346@qq.com
- * @LastEditTime: 2024-03-20 16:30:22
+ * @LastEditTime: 2024-03-20 17:33:14
  * @FilePath: \wechat-autoship-pdd\src\wechaty\index.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -10,7 +10,7 @@ import { ScanStatus, WechatyBuilder, log } from "wechaty";
 import qrcodeTerminal from 'qrcode-terminal';
 import { MessageInterface } from "wechaty/impls";
 import moment from "moment";
-import { DATE_FORMAT, NOT_IN_FORMAT_MSG, QUANTITY_UNIT_OF_ORDER, SPIDER_MODE, WECHATY_XLSX_PATH, WECHAT_HEADER_DATA } from "../../config";
+import { DATE_FORMAT, NOT_IN_FORMAT_MSG, QUANTITY_UNIT_OF_ORDER, SPIDER_MODE, WECHAT_HEADER_DATA } from "../../config";
 import { MessageTimeDiff, delay } from "../../utils";
 import { exec } from "child_process";
 import { startSpider } from "../spider";
@@ -189,46 +189,6 @@ async function onMessage(msg: MessageInterface) {
     // log.info(`isDelGenerated: ${isDelGenerated}`)
     // isDelGenerated && await startSpider(SPIDER_MODE);
 
-    /**
-     * 匹配快递单号信息
-     * 1. 有分机号
-     * 单号+收货人+分机号
-     * 
-     * 2. 无分机号
-     * 单号+收货人
-     */
-    const eTNMsgArr = matchETNText(text.trim())
-    if (eTNMsgArr.length) {
-      const resArr: string[][] = []
-      // 解析数据并存储
-      const regex = /\[\d{4}\]/
-      eTNMsgArr.forEach((item) => {
-        let expressTrackingNum = item.slice(0, 14);
-        let consignee = ''
-        let extensionNum = ''
-        // 有分机号的情况
-        if (regex.test(item)) {
-          consignee = item.slice(14, -6).trim();
-          extensionNum = item.slice(-6).slice(1, 5);
-        } else {
-          consignee = item.slice(14, -1).trim();
-        }
-        const result = [expressTrackingNum, consignee, extensionNum, dateTime]
-        resArr.push(result)
-        db.insertOne<WechatyTableRow>(wechatyTable, {
-          expressTrackingNum,
-          consignee,
-          extensionNum
-        })
-      })
-
-
-      await appendDataToXlsx({ sourceFilePath: WECHATY_XLSX_PATH, data: resArr, newFileheader: WECHAT_HEADER_DATA })
-
-      // 防抖：规定时间内如果没有接收到新的消息就启动合并文件的程序，有就重新计时
-      debouncedMergeXlsx(msg)
-    }
-
     /** 
      * 匹配报单信息
      * 1. 有分机号
@@ -248,6 +208,40 @@ async function onMessage(msg: MessageInterface) {
         msg.say(`${ordMsg.alias} ${ordMsg.quantity}套 ${Number(dataInDB?.[0]?.cost) * Number(ordMsg.quantity)}元`)
       }
     }
+  }
+
+  /**
+   * 匹配快递单号信息
+   * 1. 有分机号
+   * 单号+收货人+分机号
+   * 
+   * 2. 无分机号
+   * 单号+收货人
+   */
+  const eTNMsgArr = matchETNText(text.trim())
+  if (eTNMsgArr.length) {
+    // 解析数据并存储
+    const regex = /\[\d{4}\]/
+    eTNMsgArr.forEach((item) => {
+      let expressTrackingNum = item.slice(0, 14);
+      let consignee = ''
+      let extensionNum = ''
+      // 有分机号的情况
+      if (regex.test(item)) {
+        consignee = item.slice(14, -6).trim();
+        extensionNum = item.slice(-6).slice(1, 5);
+      } else {
+        consignee = item.slice(14).trim();
+      }
+      db.insertOne<WechatyTableRow>(wechatyTable, {
+        expressTrackingNum,
+        consignee,
+        extensionNum
+      })
+    })
+
+    // 防抖：规定时间内如果没有接收到新的消息就启动合并文件的程序，有就重新计时
+    debouncedMergeXlsx(msg)
   }
 
   db.close()
