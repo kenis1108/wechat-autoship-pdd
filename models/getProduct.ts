@@ -2,7 +2,7 @@
  * @Author: kenis 1836362346@qq.com
  * @Date: 2024-03-15 15:46:48
  * @LastEditors: kenis 1836362346@qq.com
- * @LastEditTime: 2024-03-17 18:35:46
+ * @LastEditTime: 2024-03-20 15:25:00
  * @FilePath: \wechat-autoship-pdd\src\test.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -17,7 +17,6 @@ import { log } from 'wechaty';
 import SQLiteDB from '../models';
 import { ProductTableRow, productTable } from '../models/tables/product';
 
-const dir = 'public/sku/2'
 /** 
  * 遍历文件夹里的所有json文件,递归处理子文件夹
  */
@@ -48,35 +47,35 @@ export async function readJSONFiles(directoryPath: string) {
               /* -------------------------------------------------------------------------- */
               /*                                 可以抽出写成回调函数  ↓ ↓ ↓ ↓ ↓                                */
               /* -------------------------------------------------------------------------- */
-              // 只有一个属性的处理方式
-              // jsonData.forEach((item:any)=>{
-              //   const db = new SQLiteDB('autoship.db')
-              //   db.insertOne<ProductTableRow>(productTable,{
-              //     title:item['商品标题'],
-              //     sku1: item['颜色'],
-              //     sku2: '',
-              //     cost: ''
-              //   })
-              // })
-
-              // 两个属性的处理方式
-              // const jsonData2 = extractAndGenerate(jsonData)
-              // jsonData2.forEach((item:any)=>{
-              //   const db = new SQLiteDB('autoship.db')
-              //   db.insertOne<ProductTableRow>(productTable,{
-              //     title:item['商品标题'],
-              //     sku1: item['颜色'],
-              //     sku2: item['尺码'],
-              //     cost: ''
-              //   })
-              // })
-
-
-
+              if (directoryPath.includes('1')) {
+                // 只有一个属性的处理方式
+                jsonData.forEach((item: any) => {
+                  const db = new SQLiteDB('autoship.db')
+                  db.insertOne<ProductTableRow>(productTable, {
+                    title: item['商品标题'],
+                    alias: '',
+                    sku1: item['颜色'],
+                    sku2: '',
+                    cost: ''
+                  })
+                })
+              } else {
+                // 两个属性的处理方式
+                const jsonData2 = extractAndGenerate(jsonData)
+                jsonData2.forEach((item: any) => {
+                  const db = new SQLiteDB('autoship.db')
+                  db.insertOne<ProductTableRow>(productTable, {
+                    title: item['商品标题'],
+                    alias: '',
+                    sku1: item['颜色'],
+                    sku2: item['尺码'],
+                    cost: ''
+                  })
+                })
+              }
               /* -------------------------------------------------------------------------- */
               /*                                 可以抽出写成回调函数  ↑ ↑ ↑ ↑ ↑                               */
               /* -------------------------------------------------------------------------- */
-
             } catch (parseError) {
               console.error('Error parsing JSON:', parseError);
             }
@@ -142,5 +141,5 @@ function extractAndGenerate(input: Item[]): Item[] {
   return 新数组;
 }
 
-readJSONFiles(dir);
+
 

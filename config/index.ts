@@ -2,7 +2,7 @@
  * @Author: kenis 1836362346@qq.com
  * @Date: 2024-03-09 11:39:45
  * @LastEditors: kenis 1836362346@qq.com
- * @LastEditTime: 2024-03-20 12:05:54
+ * @LastEditTime: 2024-03-20 15:43:48
  * @FilePath: \wechaty-pdd-auto\src\config.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -66,9 +66,8 @@ export const GET_AUTOMAJSONTIME = 30 * 60 * 1000
  */
 export const SPIDER_MODE: SpiderMode = 'automa'
 
-
-
-
-
 /** 拼多多后台订单查询地址 */
 export const ORDER_QUERY_URL = 'https://mms.pinduoduo.com/orders/list';
+
+/** 报单的数量单位 */
+export const QUANTITY_UNIT_OF_ORDER = ['条', '套', '对']

@@ -2,7 +2,7 @@
  * @Author: kenis 1836362346@qq.com
  * @Date: 2024-03-15 15:12:37
  * @LastEditors: kenis 1836362346@qq.com
- * @LastEditTime: 2024-03-20 15:04:18
+ * @LastEditTime: 2024-03-20 16:30:22
  * @FilePath: \wechat-autoship-pdd\src\wechaty\index.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -10,13 +10,15 @@ import { ScanStatus, WechatyBuilder, log } from "wechaty";
 import qrcodeTerminal from 'qrcode-terminal';
 import { MessageInterface } from "wechaty/impls";
 import moment from "moment";
-import { DATE_FORMAT, NOT_IN_FORMAT_MSG, SPIDER_MODE, WECHATY_XLSX_PATH, WECHAT_HEADER_DATA } from "../../config";
+import { DATE_FORMAT, NOT_IN_FORMAT_MSG, QUANTITY_UNIT_OF_ORDER, SPIDER_MODE, WECHATY_XLSX_PATH, WECHAT_HEADER_DATA } from "../../config";
 import { MessageTimeDiff, delay } from "../../utils";
 import { exec } from "child_process";
 import { startSpider } from "../spider";
 import { appendDataToXlsx, debouncedMergeXlsx } from "../xlsx";
 import SQLiteDB from "../../models";
 import { WechatyTableRow, wechatyTable } from "../../models/tables/wechaty";
+import { productTable } from "../../models/tables/product";
+import { zhToNumber } from "zh-to-number";
 
 // const messageTimeDiff = new MessageTimeDiff()
 
@@ -121,18 +123,48 @@ function matchOrdText(input: string) {
    * 收货人+(分机号)?\n
    * 手机号码\n
    * 收货地址+。+sku
+   * 
+   * 1. 
+   * 淘派电商（94934446）[5018]
+   * 17283440517
+   * 广东省 东莞市 虎门镇 南栅五区民昌路3巷13号D区厂房淘派电商339969[5018]。    A款银白色链天蓝色皮30cm带扣
+   * 2. 
+   * 77[7105]
+   * 17281947767
+   * 上海市 上海市 宝山区 市台路408号1214室[7105]。     鎏金色大号一套
+   * 3. 
+   * 77[7105]
+   * 17281947767
+   * 上海市 上海市 宝山区 市台路408号1214室[7105]。     鎏金色大号两套
    */
   const regex = /.+(\[\d{4}\])?\n1[0-9]{10}\n([\u4e00-\u9fa5]+[省|市])\s([\u4e00-\u9fa5]+市)\s([\u4e00-\u9fa5]+[市|区|镇])\s.*/
   if (regex.test(input)) {
-    const skuAndNum = input.split('\n')?.[2]?.split('。')?.[1]?.trim()
-    return skuAndNum || ''
+    const skuAndQuantity = input.split('\n')?.[2]?.split('。')?.[1]?.trim()
+    let quantity = ''
+    let alias = ''
+    for (let i = 0; i < QUANTITY_UNIT_OF_ORDER.length; i++) {
+      const unit = QUANTITY_UNIT_OF_ORDER[i]
+      const unitIndex = skuAndQuantity.indexOf(unit)
+      if (unitIndex !== -1) {
+        // zhToNumber不会识别 ‘两‘
+        quantity = skuAndQuantity.slice(unitIndex - 1, -1)?.replace(/两/g, '二')
+        alias = skuAndQuantity.slice(0, unitIndex - 1)
+        break
+      } else {
+        quantity = '一'
+        alias = skuAndQuantity
+      }
+    }
+    return {
+      quantity: zhToNumber(quantity), alias
+    }
   }
-  return ''
-
+  return null
 }
 
 /** message事件的回调 */
 async function onMessage(msg: MessageInterface) {
+  const db = new SQLiteDB('autoship.db');
 
   const talker = msg.talker().name() // 发消息人
   const listener = msg.listener() // 接收消息人
@@ -170,7 +202,6 @@ async function onMessage(msg: MessageInterface) {
       const resArr: string[][] = []
       // 解析数据并存储
       const regex = /\[\d{4}\]/
-      const db = new SQLiteDB('autoship.db');
       eTNMsgArr.forEach((item) => {
         let expressTrackingNum = item.slice(0, 14);
         let consignee = ''
@@ -190,7 +221,7 @@ async function onMessage(msg: MessageInterface) {
           extensionNum
         })
       })
-      db.close()
+
 
       await appendDataToXlsx({ sourceFilePath: WECHATY_XLSX_PATH, data: resArr, newFileheader: WECHAT_HEADER_DATA })
 
@@ -211,9 +242,15 @@ async function onMessage(msg: MessageInterface) {
      * 收货地址+。+sku
      */
     const ordMsg = matchOrdText(text.trim())
-    console.log("🚀 ~ onMessage ~ ordMsg:", ordMsg)
-    msg.say(`${ordMsg}多少钱？`)
+    if (ordMsg) {
+      const dataInDB = db.queryByCond(productTable, `alias='${ordMsg?.alias}'`)
+      if (dataInDB?.[0]?.cost) {
+        msg.say(`${ordMsg.alias} ${ordMsg.quantity}套 ${Number(dataInDB?.[0]?.cost) * Number(ordMsg.quantity)}元`)
+      }
+    }
   }
+
+  db.close()
 };
 
 /** 
