@@ -20,6 +20,7 @@
     "lodash": "^4.17.21",
     "moment": "^2.30.1",
     "nodemon": "^3.1.0",
+    "puppeteer": "22.4.1",
     "puppeteer-core": "^22.4.1",
     "puppeteer-extra": "^3.3.6",
     "puppeteer-extra-plugin-stealth": "^2.11.2",

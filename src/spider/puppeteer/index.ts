@@ -133,7 +133,7 @@ const startPuppeteer = async () => {
       if (od) {
         // 并返回元素的文本内容
         const elementText = await od.evaluate((element: Element) => element.textContent);
-        if (elementText.includes('订单编号')) {
+        if (elementText!.includes('订单编号')) {
           const orderNum = (await getTextWithJSHandle(od, _orderNumSelector)).slice(5)
           const transactionTime = (await getTextWithJSHandle(od, _transactionTimeSelector)).slice(5)
           const productTitle = await getTextWithJSHandle(od, _productTitleSelector)
