@@ -2,7 +2,7 @@
  * @Author: kenis 1836362346@qq.com
  * @Date: 2024-03-09 11:39:45
  * @LastEditors: kenis 1836362346@qq.com
- * @LastEditTime: 2024-03-20 17:20:13
+ * @LastEditTime: 2024-03-20 18:06:54
  * @FilePath: \wechaty-pdd-auto\src\config.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -14,12 +14,9 @@ import { SpiderMode } from '../@types';
 const homedir = os.homedir()
 /** 发货模板文件路径 */
 export const TEMPLATE_PATH = '发货模板.xlsx'
-/** 爬虫获取的订单数据转成xlsx文件路径 */
-export const ORDERQUERY_XLSX_PATH = 'assets/orderQuery.xlsx';
 /** 最终生成的发货文件路径 */
-export const SHIPPING_PATH = 'assets/shipping.xlsx';
+export const SHIPPING_PATH = 'public/shipping.xlsx';
 /** automa导出的json文件路径 */
-
 export const AUTOMA_JSON_PATH = `${homedir}\\Downloads\\automa.json`;
 /* -------------------------------------------------------------------------- */
 /*                                table columns                               */
@@ -30,12 +27,12 @@ export const WECHAT_HEADER_DATA = [
 ]
 /** 爬虫获取的订单数据转成xlsx文件表头配置 */
 export const ORDERQUERY_HEADER_DATA = [
-  ['订单号', '商品标题', '收货人', '分机号', '收货地址', 'sku', '成交时间']
+  ['订单号', '商品标题', '收件人名称', '分机号', '收货地址', 'sku', '成交时间']
 ]
 /** 最终的发货文件的列配置 */
 export const SHIPPING_TEMPLATE_COLUMNS = ['订单号', '快递公司', '快递单号']
 /** 根据特定列的值来合并两个表 */
-export const MERGE_COLUMNS = '分机号'
+export const MERGE_COLUMNS = '收件人名称'
 
 /* -------------------------------------------------------------------------- */
 /*                                   prompt                                   */

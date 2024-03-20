@@ -2,14 +2,12 @@
  * @Author: kenis 1836362346@qq.com
  * @Date: 2024-03-08 22:51:41
  * @LastEditors: kenis 1836362346@qq.com
- * @LastEditTime: 2024-03-20 17:30:04
+ * @LastEditTime: 2024-03-20 18:11:44
  * @FilePath: \wechaty-pdd-auto\src\xlsx.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
-import * as fs from 'fs';
 import * as XLSX from 'xlsx';
-import { DATA_NUM_MSG, DEBOUNCE_TIME, MERGE_COLUMNS, SHIPPING_PATH, TEMPLATE_PATH, WECHAT_HEADER_DATA } from '../../config';
-import { ORDERQUERY_XLSX_PATH } from "../../config";
+import { DATA_NUM_MSG, DEBOUNCE_TIME, MERGE_COLUMNS, ORDERQUERY_HEADER_DATA, SHIPPING_PATH, TEMPLATE_PATH, WECHAT_HEADER_DATA } from '../../config';
 import { isFileExists, mergeTablesByColumn } from "../../utils";
 import _ from 'lodash';
 import { MessageInterface } from 'wechaty/impls';
@@ -19,6 +17,7 @@ import { log } from 'wechaty';
 import SQLiteDB from '../../models';
 import { ShippingTableRow, shippingTable } from '../../models/tables/shipping';
 import { WechatyTableRow, wechatyTable } from '../../models/tables/wechaty';
+import { orderQueryTable, orderQueryTableRow } from '../../models/tables/orderQuery';
 
 /**
  * 新建xlsx文件
@@ -74,48 +73,6 @@ export async function appendDataToXlsx(params: AppendDataToXlsxParams) {
   }
 }
 
-/** 根据某列的值合并两个xlsx文件 */
-export const mergeTwoXlsxBasedOnColumn = (filePath: string, wechatyInstance: MessageInterface) => {
-  const db = new SQLiteDB('autoship.db');
-  if (!isFileExists(filePath)) {
-    return
-  }
-  const data1: string[][] = []
-  const data3: WechatyTableRow[] = db.queryByCond(wechatyTable)
-  data3.forEach(item => {
-    const { expressTrackingNum, consignee, extensionNum = '', createdAt } = item
-    data1.push([expressTrackingNum, consignee, extensionNum, createdAt as string])
-  })
-
-  // 读取第二个 Excel 文件
-  const data2 = readExcelToJson(filePath);
-
-  const mergeData = mergeTablesByColumn([...WECHAT_HEADER_DATA, ...data1], data2, MERGE_COLUMNS)
-
-  log.info(JSON.stringify(mergeData));
-  // 如果该数组长度<2,说明没有找到匹配的订单号
-  wechatyInstance.say(DATA_NUM_MSG(mergeData.length - 1))
-  if (mergeData.length < 2) {
-    return
-  }
-  const data = mergeData.slice(1)
-  // 读取发货模板，然后将新数据插入发货模板的最后面并生成一个新的文件
-  appendDataToXlsx({
-    sourceFilePath: TEMPLATE_PATH,
-    data,
-    saveNewFilePathAfterAddingData: SHIPPING_PATH
-  })
-
-
-  data.forEach(item => {
-    db.insertOne<ShippingTableRow>(shippingTable, {
-      orderNum: item[0],
-      expressTrackingNum: item[2]
-    })
-  })
-  db.close()
-}
-
 /** 读取xlsx数据转成js对象 */
 export function readExcelToJson(filePath: string): string[][] {
   if (!isFileExists(filePath)) {
@@ -138,9 +95,47 @@ export function readExcelToJson(filePath: string): string[][] {
  * 合并两个文件生产新的符合拼多多发货模板的xlsx文件
  */
 async function mergeXlsx(wechatyInstance: MessageInterface) {
-  /** 合并order.xlsx和wechaty收集的单号消息生成符合拼多多发货模板的xlsx */
-  log.info('合并order.xlsx和wechaty收集的单号消息生成符合拼多多发货模板的xlsx');
-  mergeTwoXlsxBasedOnColumn(ORDERQUERY_XLSX_PATH, wechatyInstance)
+  /** 根据收件人名称合并orderQuery表和wechaty表的数据生成符合拼多多发货模板的xlsx */
+  log.info('根据收件人名称合并orderQuery表和wechaty表的数据生成符合拼多多发货模板的xlsx');
+  const db = new SQLiteDB('autoship.db');
+
+  const data1: string[][] = []
+  const data3: WechatyTableRow[] = db.queryByCond(wechatyTable)
+  data3.forEach(item => {
+    const { expressTrackingNum, consignee, extensionNum = '', createdAt } = item
+    data1.push([expressTrackingNum, consignee, extensionNum, createdAt as string])
+  })
+
+  const data2: string[][] = []
+  const data5: orderQueryTableRow[] = db.queryByCond(orderQueryTable)
+  data5.forEach(item => {
+    const { orderNum, productTitle, consignee, extensionNum = '', address, sku, transactionTime } = item
+    data2.push([orderNum, productTitle, consignee, extensionNum, address, sku, transactionTime])
+  })
+
+  const mergeData = mergeTablesByColumn([...WECHAT_HEADER_DATA, ...data1], [...ORDERQUERY_HEADER_DATA, ...data2], MERGE_COLUMNS)
+
+  log.info(JSON.stringify(mergeData));
+  // 如果该数组长度<2,说明没有找到匹配的订单号
+  wechatyInstance.say(DATA_NUM_MSG(mergeData.length - 1))
+  if (mergeData.length < 2) {
+    return
+  }
+  const data = mergeData.slice(1)
+  // 读取发货模板，然后将新数据插入发货模板的最后面并生成一个新的文件
+  appendDataToXlsx({
+    sourceFilePath: TEMPLATE_PATH,
+    data,
+    saveNewFilePathAfterAddingData: SHIPPING_PATH
+  })
+
+  // data.forEach(item => {
+  //   db.insertOne<ShippingTableRow>(shippingTable, {
+  //     orderNum: item[0],
+  //     expressTrackingNum: item[2]
+  //   })
+  // })
+  db.close()
 }
 
 /** 防抖：规定时间内如果没有接收到新的消息就启动合并文件的程序，有就重新计时 */

@@ -1,8 +1,8 @@
 node_modules
 *.memory-card.json
-automa.json
-assets/**.xlsx
 keymousego/logs
 keymousego/plugins
 keymousego/config.ini
 cookies.json
+public/**.xlsx
+*.db

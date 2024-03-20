@@ -23,7 +23,7 @@ export const createOrderQueryTableSql = `
     sku TEXT NOT NULL,  -- 商品属性
     address TEXT NOT NULL,  -- 收货地址
     consignee TEXT NOT NULL,  -- 收件人
-    extensionNum TEXT NOT NULL,  -- 分机号
+    extensionNum TEXT,  -- 分机号
     createdAt TEXT DEFAULT (datetime('now', 'localtime'))
   );
 `

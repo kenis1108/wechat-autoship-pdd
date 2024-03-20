@@ -2,14 +2,13 @@
  * @Author: kenis 1836362346@qq.com
  * @Date: 2024-03-15 15:20:42
  * @LastEditors: kenis 1836362346@qq.com
- * @LastEditTime: 2024-03-19 22:29:11
+ * @LastEditTime: 2024-03-20 17:56:28
  * @FilePath: \wechat-autoship-pdd\src\spider\automa\index.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
 import { exec } from "child_process";
-import { AUTOMA_JSON_PATH, ORDERQUERY_HEADER_DATA, ORDERQUERY_XLSX_PATH } from "../../../config";
+import { AUTOMA_JSON_PATH} from "../../../config";
 import { delay, isFileExists } from "../../../utils";
-import { createNewXlsx } from "../../xlsx";
 import * as fs from 'fs';
 import { AutomaJson } from "../../../@types";
 import SQLiteDB from "../../../models";
@@ -31,7 +30,7 @@ const startAutoma = async (isKMG: boolean = true) => {
 
     // 解析 JSON 数据
     const jsonData: AutomaJson[] = JSON.parse(fileContent);
-    const result = jsonData.filter(item => item.details.includes('订单编号')).map(({ details }) => {
+    jsonData.filter(item => item.details.includes('订单编号'))?.forEach(({ details }) => {
       const all = details.trim().split('\n').filter(Boolean).filter(i => i !== '\t')
       const orderNum = all.filter(i => i.includes('订单编号：'))?.[0]?.slice(5)
       const productTitle = all.findIndex(i => i === '发货') !== -1 ? all[all.findIndex(i => i === '发货') + 1] : ''
@@ -54,14 +53,7 @@ const startAutoma = async (isKMG: boolean = true) => {
         consignee,
         extensionNum,
       })
-      return [
-        orderNum, productTitle, consignee, extensionNum, address, sku, transactionTime
-      ]
     })
-
-    if (result && result?.length > 0) {
-      await createNewXlsx([...ORDERQUERY_HEADER_DATA, ...result], ORDERQUERY_XLSX_PATH)
-    }
   }
 
   db.close()
