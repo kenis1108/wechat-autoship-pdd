@@ -2,7 +2,7 @@
  * @Author: kenis 1836362346@qq.com
  * @Date: 2024-03-15 15:12:37
  * @LastEditors: kenis 1836362346@qq.com
- * @LastEditTime: 2024-03-20 17:33:14
+ * @LastEditTime: 2024-03-21 15:36:47
  * @FilePath: \wechat-autoship-pdd\src\wechaty\index.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -10,7 +10,7 @@ import { ScanStatus, WechatyBuilder, log } from "wechaty";
 import qrcodeTerminal from 'qrcode-terminal';
 import { MessageInterface } from "wechaty/impls";
 import moment from "moment";
-import { DATE_FORMAT, NOT_IN_FORMAT_MSG, QUANTITY_UNIT_OF_ORDER, SPIDER_MODE, WECHAT_HEADER_DATA } from "../../config";
+import { ALIAS_UNIT_OF_ORDER, DATE_FORMAT, NOT_IN_FORMAT_MSG, QUANTITY_UNIT_OF_ORDER, SPIDER_MODE, WECHAT_HEADER_DATA } from "../../config";
 import { MessageTimeDiff, delay } from "../../utils";
 import { exec } from "child_process";
 import { startSpider } from "../spider";
@@ -117,7 +117,10 @@ function matchETNText(input: string): string[] {
 /**
  * 从文本里拆分出sku+数量
  */
-function matchOrdText(input: string) {
+class MatchOrdText {
+  private regex = /.+(\[\d{4}\])?\n1[0-9]{10}\n([\u4e00-\u9fa5]+[省|市])\s([\u4e00-\u9fa5]+市)\s([\u4e00-\u9fa5]+[市|区|镇])\s.*/
+  public input;
+  public curSku: string;
   /** 
    * 匹配 
    * 收货人+(分机号)?\n
@@ -136,30 +139,68 @@ function matchOrdText(input: string) {
    * 77[7105]
    * 17281947767
    * 上海市 上海市 宝山区 市台路408号1214室[7105]。     鎏金色大号两套
+   * 4.
+   * 张寿梅[3922]
+   * 17281944786
+   * 山东省 济南市 历下区 山东省济南市历山路70号[3922]。        鎏金色小号两套➕银白色小号三套➕鎏金色底座单买
+   * 
+   * 提取出alias  X款 Xcm X号 底座单买 “SELECT DISTINCT alias  FROM product p;”
    */
-  const regex = /.+(\[\d{4}\])?\n1[0-9]{10}\n([\u4e00-\u9fa5]+[省|市])\s([\u4e00-\u9fa5]+市)\s([\u4e00-\u9fa5]+[市|区|镇])\s.*/
-  if (regex.test(input)) {
-    const skuAndQuantity = input.split('\n')?.[2]?.split('。')?.[1]?.trim()
+  constructor(input: string) {
+    this.input = input
+    this.curSku = ''
+  }
+
+  /** 提取单个商品 */
+  private matchOne(sq: string) {
     let quantity = ''
-    let alias = ''
+    let alias: string[] = []
+    let sku = ''
     for (let i = 0; i < QUANTITY_UNIT_OF_ORDER.length; i++) {
       const unit = QUANTITY_UNIT_OF_ORDER[i]
-      const unitIndex = skuAndQuantity.indexOf(unit)
+      const unitIndex = sq.indexOf(unit)
       if (unitIndex !== -1) {
         // zhToNumber不会识别 ‘两‘
-        quantity = skuAndQuantity.slice(unitIndex - 1, -1)?.replace(/两/g, '二')
-        alias = skuAndQuantity.slice(0, unitIndex - 1)
+        quantity = sq.slice(unitIndex - 1, -1)?.replace(/两/g, '二')
+        sku = sq.slice(0, unitIndex - 1)
         break
       } else {
         quantity = '一'
-        alias = skuAndQuantity
+        sku = sq
+      }
+    }
+    // 找到款式单位的位置
+    let cycles = 0
+    for (let index = 0; index < ALIAS_UNIT_OF_ORDER.length; index++) {
+      // 最多两个款式
+      if (cycles === 2) {
+        break
+      }
+      const element = ALIAS_UNIT_OF_ORDER[index];
+      if (sku.includes(element)) {
+        alias.push(element)
+        cycles++
       }
     }
     return {
-      quantity: zhToNumber(quantity), alias
+      quantity: zhToNumber(quantity), alias, sku
     }
   }
-  return null
+
+  /** 返回提取的结果 */
+  public match() {
+    if (this.regex.test(this.input)) {
+      const skuAndQuantity = this.input.split('\n')?.[2]?.split('。')?.[1]?.trim()
+      this.curSku = skuAndQuantity
+      if (skuAndQuantity.includes('➕')) {
+        return skuAndQuantity.split('➕').map(item => {
+          return this.matchOne(item)
+        })
+      } else {
+        return [this.matchOne(skuAndQuantity)]
+      }
+    }
+  }
 }
 
 /** message事件的回调 */
@@ -191,23 +232,46 @@ async function onMessage(msg: MessageInterface) {
 
     /** 
      * 匹配报单信息
-     * 1. 有分机号
-     * 收货人+分机号\n
+     * 1. 单种商品
+     * 收货人+(分机号)?\n
      * 手机号码\n
      * 收货地址+。+sku
      * 
-     * 2. 无分机号
-     * 收货人\n
+     * 2. 多种商品
+     * 收货人+(分机号)?\n
      * 手机号码\n
-     * 收货地址+。+sku
+     * 收货地址+。+sku1➕sku2 
      */
-    const ordMsg = matchOrdText(text.trim())
-    if (ordMsg) {
-      const dataInDB = db.queryByCond(productTable, `alias='${ordMsg?.alias}'`)
-      if (dataInDB?.[0]?.cost) {
-        msg.say(`${ordMsg.alias} ${ordMsg.quantity}套 ${Number(dataInDB?.[0]?.cost) * Number(ordMsg.quantity)}元`)
-      }
+    const mOrdText = new MatchOrdText(text.trim())
+    const ordMsgs = mOrdText.match()
+    const total = {
+      sku: mOrdText.curSku,
+      /** 一个快递的所有商品数量 */
+      quantity: 1,
+      /** 一个快递的所有商品的总成本 */
+      cost: 0,
+      /** 快递费 一般是4，东西多就要加钱 */
+      etPrice: 4
     }
+    ordMsgs?.forEach(ordMsg => {
+      if (ordMsg?.alias && ordMsg?.alias?.length) {
+        let condition = ''
+        ordMsg.alias.forEach(item => {
+          condition += `alias LIKE '%${item}%' AND `
+        })
+        const dataInDB = db.queryByCond(productTable, condition.slice(0, -5))
+        if (dataInDB?.[0]?.cost) {
+          total.cost += Number(dataInDB?.[0]?.cost) * Number(ordMsg.quantity)
+          total.quantity += Number(ordMsg.quantity)
+        } else {
+          msg.say(`${ordMsg.sku}不包括运费要多少钱？`)
+        }
+      } else {
+        msg.say(`${ordMsg?.sku}不包括运费要多少钱？`)
+      }
+    })
+    msg.say(`${total.sku} 运费${total.etPrice}元 总计${total?.cost+ total.etPrice}元`)
+
   }
 
   /**
