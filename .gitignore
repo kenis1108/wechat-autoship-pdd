@@ -6,3 +6,4 @@ keymousego/config.ini
 cookies.json
 public/**.xlsx
 *.db
+*.png

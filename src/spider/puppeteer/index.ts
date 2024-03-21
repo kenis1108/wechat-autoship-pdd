@@ -3,7 +3,7 @@
 * @Author: kenis 1836362346@qq.com
 * @Date: 2024-03-13 18:35:20
  * @LastEditors: kenis 1836362346@qq.com
- * @LastEditTime: 2024-03-21 18:42:49
+ * @LastEditTime: 2024-03-21 22:24:00
 * @FilePath: \wechat-autoship-pdd\src\test.ts
 * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 */
@@ -142,6 +142,9 @@ const startPuppeteer = async () => {
     if (orderNumElementHandle) {
       const elementText = await orderNumElementHandle.evaluate((element: Element) => element.textContent);
       log.info('待发货订单数：', elementText);
+      if(!Number(elementText)){
+        return
+      }
     } else {
       log.info('未找到匹配的元素');
     }

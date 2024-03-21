@@ -2,7 +2,7 @@
  * @Author: kenis 1836362346@qq.com
  * @Date: 2024-03-15 15:12:37
  * @LastEditors: kenis 1836362346@qq.com
- * @LastEditTime: 2024-03-21 19:00:01
+ * @LastEditTime: 2024-03-21 22:32:14
  * @FilePath: \wechat-autoship-pdd\src\wechaty\index.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -10,8 +10,8 @@ import { ScanStatus, WechatyBuilder, log } from "wechaty";
 import qrcodeTerminal from 'qrcode-terminal';
 import { MessageInterface } from "wechaty/impls";
 import moment from "moment";
-import { ALIAS_UNIT_OF_ORDER, DATE_FORMAT, NOT_IN_FORMAT_MSG, QUANTITY_UNIT_OF_ORDER, SPIDER_MODE, WECHAT_HEADER_DATA } from "../../config";
-import { MessageTimeDiff, delay } from "../../utils";
+import { ALIAS_UNIT_OF_ORDER, DATE_FORMAT, NOT_IN_FORMAT_MSG, QUANTITY_UNIT_OF_ORDER, SPIDER_MODE, SYMBOLS_FORFFERENT_PRODUCTS, WECHAT_HEADER_DATA } from "../../config";
+import { MessageTimeDiff, calculateETPrice, delay } from "../../utils";
 import { exec } from "child_process";
 import { startSpider } from "../spider";
 import { appendDataToXlsx, debouncedMergeXlsx } from "../xlsx";
@@ -192,8 +192,8 @@ class MatchOrdText {
     if (this.regex.test(this.input)) {
       const skuAndQuantity = this.input.split('\n')?.[2]?.split('。')?.[1]?.trim()
       this.curSku = skuAndQuantity
-      if (skuAndQuantity.includes('➕')) {
-        return skuAndQuantity.split('➕').map(item => {
+      if (skuAndQuantity.includes(SYMBOLS_FORFFERENT_PRODUCTS)) {
+        return skuAndQuantity.split(SYMBOLS_FORFFERENT_PRODUCTS).map(item => {
           return this.matchOne(item)
         })
       } else {
@@ -247,10 +247,10 @@ async function onMessage(msg: MessageInterface) {
     const total = {
       sku: mOrdText.curSku,
       /** 一个快递的所有商品数量 */
-      quantity: 1,
+      quantity: 0,
       /** 一个快递的所有商品的总成本 */
       cost: 0,
-      /** 快递费 一般是4，东西多就要加钱 */
+      /** 快递费 运费公式：quantity/2 的 商*4，如果有余数就（商+1）* 4 */
       etPrice: 4
     }
     ordMsgs?.forEach(ordMsg => {
@@ -270,7 +270,9 @@ async function onMessage(msg: MessageInterface) {
         msg.say(`${ordMsg?.sku}不包括运费要多少钱？`)
       }
     })
-    ordMsgs && msg.say(`${total.sku} 运费${total.etPrice}元 总计${total?.cost + total.etPrice}元`)
+    // 
+    total.etPrice = calculateETPrice(total.quantity)
+    ordMsgs && msg.say(`${total.sku} 共${total.quantity}件 运费共${total.etPrice}元 总计${total?.cost + total.etPrice}元`)
   }
 
   /**

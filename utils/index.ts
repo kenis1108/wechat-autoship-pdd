@@ -176,3 +176,19 @@ export class MessageTimeDiff {
     }
   }
 }
+
+/**
+ * 返回这个数字除以2的商*4，如果无法整除那就用(商+1)*4
+ * @param num 
+ * @returns 
+ */
+export function calculateETPrice(num: number): number {
+  const quotient = Math.floor(num / 2); // 商
+  const remainder = num % 2; // 余数
+
+  if (remainder === 0) {
+    return quotient * 4;
+  } else {
+    return (quotient + 1) * 4;
+  }
+}
