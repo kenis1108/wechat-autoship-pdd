@@ -2,7 +2,7 @@
  * @Author: kenis 1836362346@qq.com
  * @Date: 2024-03-15 15:12:37
  * @LastEditors: kenis 1836362346@qq.com
- * @LastEditTime: 2024-03-21 15:36:47
+ * @LastEditTime: 2024-03-21 19:00:01
  * @FilePath: \wechat-autoship-pdd\src\wechaty\index.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -53,7 +53,7 @@ function matchETNText(input: string): string[] {
    * 6. 78779856323821   77 [7105]     78779855409756    楊蕙慈
    */
   /** 匹配 单号+收货人 单号+收货人+分机号 */
-  const regex1 = /\d{14}.+(\[\d{4}\])?/
+  const regex1 = /^\d{14}.+(\[\d{4}\])?/
   /** 匹配单号 */
   const regex2 = /\d{14}/
   const regex3 = /\]$/
@@ -270,8 +270,7 @@ async function onMessage(msg: MessageInterface) {
         msg.say(`${ordMsg?.sku}不包括运费要多少钱？`)
       }
     })
-    msg.say(`${total.sku} 运费${total.etPrice}元 总计${total?.cost+ total.etPrice}元`)
-
+    ordMsgs && msg.say(`${total.sku} 运费${total.etPrice}元 总计${total?.cost + total.etPrice}元`)
   }
 
   /**
