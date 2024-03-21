@@ -3,7 +3,7 @@
 * @Author: kenis 1836362346@qq.com
 * @Date: 2024-03-13 18:35:20
  * @LastEditors: kenis 1836362346@qq.com
- * @LastEditTime: 2024-03-20 18:18:29
+ * @LastEditTime: 2024-03-21 18:42:49
 * @FilePath: \wechat-autoship-pdd\src\test.ts
 * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 */
@@ -13,10 +13,11 @@ import pluginStealth from 'puppeteer-extra-plugin-stealth';
 import fs from "fs";
 import { log } from "wechaty";
 import { delay, isFileExists, removeCSS } from '../../../utils';
-import { ORDER_QUERY_URL } from '../../../config';
+import { BROWSER_WS_ENDPOINT, ORDER_QUERY_URL } from '../../../config';
 import SQLiteDB from '../../../models';
 import { orderQueryTable, orderQueryTableRow } from '../../../models/tables/orderQuery';
 
+puppeteer.use(pluginStealth());
 export const cookiesJSONPath = 'cookies.json';
 
 
@@ -49,16 +50,24 @@ export const _extensionNumSelector = '[data-testid="beast-core-table-td"]:nth-ch
 /*                               selector end                                 */
 /* -------------------------------------------------------------------------- */
 
-export const initPuppeteer = async (targetUrl: string) => {
-  puppeteer.use(pluginStealth());
+/**
+ * 启动新的浏览器实例，第一次需要手动登录，然后会保存cookie
+ * @param targetUrl 
+ * @returns 
+ */
+export const puppeteerLaunch = async (targetUrl: string) => {
+
   const browser = await puppeteer.launch({
-    executablePath: 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe',
+    // executablePath: "C:\\Users\\kkb\\AppData\\Local\\Google\\Chrome\\Application\\chrome.exe",
+    // executablePath: "C:\\Program Files (x86)\\Microsoft\\Edge Dev\\Application\\msedge.exe",
+    executablePath: "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
     headless: false,
-    // defaultViewport: { width: 1920, height: 1080 },
+    defaultViewport: { width: 1655, height: 790 },
     slowMo: 100,
-    // devtools: true,
     args: [
-      '--no-sandbox',
+      '--user-data-dir=C:\\Users\\kkb\\AppData\\Local\\Microsoft\\Edge\\User Data\\Default',
+      '--start-maximized',
+      '--no-sandbox'
     ]
   });
   const page = await browser.newPage();
@@ -97,15 +106,37 @@ export const initPuppeteer = async (targetUrl: string) => {
   return { browser, page }
 }
 
+/**
+ * 连接已经打开浏览器实例
+ * @param browserWSEndpoint 
+ * @description 
+ * msedge.exe --remote-debugging-address=0.0.0.0 --remote-debugging-port=9222
+ * http://127.0.0.1:9222/json/version
+ * @returns 
+ */
+export const puppeteerConnext = async (browserWSEndpoint: string) => {
+  const browser = await puppeteer.connect({
+    browserWSEndpoint
+  })
+  const page = await browser.newPage();
+  await page.setViewport({ width: 1655, height: 790 })
+  // 启用页面缓存
+  await page.setCacheEnabled(true)
+
+  return { browser, page }
+}
+
 /** 爬取订单详情数据 */
 const startPuppeteer = async () => {
-  const { browser, page } = await initPuppeteer(ORDER_QUERY_URL)
+  // const { browser, page } = await puppeteerLaunch(ORDER_QUERY_URL)
+  const { browser, page } = await puppeteerConnext(BROWSER_WS_ENDPOINT)
+  await page.goto(ORDER_QUERY_URL);
+  log.info(page.url())
+  await delay(2000)
   if (page.url() === ORDER_QUERY_URL) {
-
     await page.waitForSelector(orderSumSelector, {
       visible: true
     })
-
     // 使用 page.$() 方法执行 CSS 选择器查询
     const orderNumElementHandle = await page.$(orderSumSelector);
     if (orderNumElementHandle) {
@@ -114,7 +145,6 @@ const startPuppeteer = async () => {
     } else {
       log.info('未找到匹配的元素');
     }
-
     // 滚动页面到右边和底部
     await page.evaluate(() => {
       window.scrollTo(document.body.scrollWidth, document.body.scrollHeight);
@@ -168,7 +198,7 @@ const startPuppeteer = async () => {
     }
     db.close()
   }
-  await browser.close();
+  // await browser.close();
 };
 
 export default startPuppeteer;

@@ -2,7 +2,7 @@
  * @Author: kenis 1836362346@qq.com
  * @Date: 2024-03-09 11:39:45
  * @LastEditors: kenis 1836362346@qq.com
- * @LastEditTime: 2024-03-21 14:27:27
+ * @LastEditTime: 2024-03-21 18:41:23
  * @FilePath: \wechaty-pdd-auto\src\config.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -70,4 +70,4 @@ export const QUANTITY_UNIT_OF_ORDER = ['条', '套', '对']
 export const ALIAS_UNIT_OF_ORDER = ['A款', 'C款', '大号', '小号', '100cm', '110cm', '120cm', '130cm', '140cm', '150cm', '底座单买']
 
 /** 浏览器websock实例 */
-export const BROWSER_WS_ENDPOINT = 'ws://localhost:9222/devtools/browser/7e68d982-4f4b-48d1-b928-b4db6c1abc3b'
+export const BROWSER_WS_ENDPOINT = 'ws://127.0.0.1:9222/devtools/browser/0850dcbe-001c-486a-9966-5cbb51efaf28'

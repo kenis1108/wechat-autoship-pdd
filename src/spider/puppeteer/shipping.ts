@@ -2,18 +2,18 @@
  * @Author: kenis 1836362346@qq.com
  * @Date: 2024-03-15 15:46:48
  * @LastEditors: kenis 1836362346@qq.com
- * @LastEditTime: 2024-03-20 21:40:41
+ * @LastEditTime: 2024-03-21 18:38:36
  * @FilePath: \wechat-autoship-pdd\src\spider\puppeteer\shipping.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
 import { log } from "wechaty";
 import { BROWSER_WS_ENDPOINT, ORDER_QUERY_URL, SHIPPING_PATH } from "../../../config";
-import { _orderNumSelector, getTextWithJSHandle, initPuppeteer, orderDetailSelector } from "."
+import { _orderNumSelector, getTextWithJSHandle, puppeteerConnext, orderDetailSelector } from "."
 import { readExcelToJson } from "../../xlsx";
 import { delay } from "../../../utils";
 import puppeteer from 'puppeteer-extra';
 import pluginStealth from 'puppeteer-extra-plugin-stealth';
-
+puppeteer.use(pluginStealth());
 
 /** 发货按钮 */
 export const shippingBtnSelector = '[data-testid="beast-core-button"]:nth-child(1)';
@@ -34,29 +34,12 @@ export default async () => {
   // 获取shipping.xlsx的数据
   const shippingData = readExcelToJson(SHIPPING_PATH).slice(2);
   console.log("🚀 ~ shippingData:", shippingData)
-  puppeteer.use(pluginStealth());
   try {
-    const browser1 = await puppeteer.launch({
-      executablePath: 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe',
-      headless: false,
-      slowMo: 100,
-    })
-    const browserWSEndpoint = browser1.wsEndpoint()
-    console.log("🚀 ~ browserWSEndpoint:", browserWSEndpoint)
-    await delay(2 * 60 * 1000)
-    const browser = await puppeteer.connect({
-      browserWSEndpoint
-    })
-    const page = await browser.newPage();
-    // 启用页面缓存
-    await page.setCacheEnabled(true)
-
+    const { browser, page } = await puppeteerConnext(BROWSER_WS_ENDPOINT)
     await page.goto(ORDER_QUERY_URL);
-
     log.info(page.url())
-
     await delay(2000)
-    // // 滚动页面到右边和底部
+    // 滚动页面到右边和底部
     await page.evaluate(() => {
       window.scrollTo(document.body.scrollWidth, document.body.scrollHeight);
     });
