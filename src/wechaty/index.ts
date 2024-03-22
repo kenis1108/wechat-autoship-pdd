@@ -311,7 +311,7 @@ async function onMessage(msg: MessageInterface) {
         expressTrackingNum,
         consignee,
         extensionNum
-      })
+      }, true)
     })
 
     // 防抖：规定时间内如果没有接收到新的消息就启动合并文件的程序，有就重新计时

@@ -13,6 +13,7 @@ import { readExcelToJson } from "../../xlsx";
 import { delay } from "../../../utils";
 import puppeteer from 'puppeteer-extra';
 import pluginStealth from 'puppeteer-extra-plugin-stealth';
+import { MessageInterface } from "wechaty/impls";
 puppeteer.use(pluginStealth());
 
 /** 发货按钮 */
@@ -30,10 +31,13 @@ export function findThirdElement(arr: any[][], target: string): string | null {
 }
 
 /** 自动发货 */
-export default async () => {
+export default async (wechatyInstance?: MessageInterface) => {
   // 获取shipping.xlsx的数据
   const shippingData = readExcelToJson(SHIPPING_PATH).slice(2);
   console.log("🚀 ~ shippingData:", shippingData)
+  if (!shippingData?.length) {
+    return
+  }
   try {
     const { browser, page } = await puppeteerConnext(BROWSER_WS_ENDPOINT)
     await page.goto(ORDER_QUERY_URL);
@@ -95,6 +99,7 @@ export default async () => {
               }
             }
             await page.screenshot({ path: `example${index}.png` });
+            wechatyInstance && wechatyInstance.say(`${expressTrackingNum}-发货成功`)
           }
         } else {
           continue
@@ -106,6 +111,5 @@ export default async () => {
     // await browser.close()
   } catch (err) {
     console.log("🚀 ~ err:", err)
-
   }
 }

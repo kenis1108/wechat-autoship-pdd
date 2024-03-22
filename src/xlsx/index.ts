@@ -96,21 +96,21 @@ export function readExcelToJson(filePath: string): string[][] {
  * 合并两个文件生产新的符合拼多多发货模板的xlsx文件
  */
 async function mergeXlsx(wechatyInstance: MessageInterface) {
-  deleteFile(SHIPPING_PATH)
+  await deleteFile(SHIPPING_PATH)
   /** 根据收件人名称合并orderQuery表和wechaty表的数据生成符合拼多多发货模板的xlsx */
   log.info('根据收件人名称合并orderQuery表和wechaty表的数据生成符合拼多多发货模板的xlsx');
   const db = new SQLiteDB('autoship.db');
 
   const data1: string[][] = []
-  const data3: WechatyTableRow[] = db.queryByCond(wechatyTable)
-  data3.forEach(item => {
+  // 只要一个小时内接收的信息
+  db.queryByCond(wechatyTable, "createdAt >= datetime('now', '-1 hours')")?.forEach((item: WechatyTableRow) => {
     const { expressTrackingNum, consignee, extensionNum = '', createdAt } = item
     data1.push([expressTrackingNum, consignee, extensionNum, createdAt as string])
   })
 
   const data2: string[][] = []
-  const data5: orderQueryTableRow[] = db.queryByCond(orderQueryTable)
-  data5.forEach(item => {
+  // 拿出48小时内成交的
+  db.queryByCond(orderQueryTable, "transactionTime >= datetime('now', '-48 hours')")?.forEach((item: orderQueryTableRow) => {
     const { orderNum, productTitle, consignee, extensionNum = '', address, sku, transactionTime } = item
     data2.push([orderNum, productTitle, consignee, extensionNum, address, sku, transactionTime])
   })
@@ -125,7 +125,7 @@ async function mergeXlsx(wechatyInstance: MessageInterface) {
   }
   const data = mergeData.slice(1)
   // 读取发货模板，然后将新数据插入发货模板的最后面并生成一个新的文件
-  appendDataToXlsx({
+  await appendDataToXlsx({
     sourceFilePath: TEMPLATE_PATH,
     data,
     saveNewFilePathAfterAddingData: SHIPPING_PATH
@@ -139,7 +139,7 @@ async function mergeXlsx(wechatyInstance: MessageInterface) {
   // })
   db.close()
 
-  shipping()
+  shipping(wechatyInstance)
 }
 
 /** 防抖：规定时间内如果没有接收到新的消息就启动合并文件的程序，有就重新计时 */

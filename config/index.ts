@@ -69,5 +69,9 @@ export const QUANTITY_UNIT_OF_ORDER = ['条', '套', '对']
 /** 报单的时候区分不用产品的符号 */
 export const SYMBOLS_FORFFERENT_PRODUCTS = '➕'
 
-/** 浏览器websock实例 */
-export const BROWSER_WS_ENDPOINT = 'ws://127.0.0.1:9222/devtools/browser/0850dcbe-001c-486a-9966-5cbb51efaf28'
+/** 
+ * 浏览器websock实例
+ * msedge.exe --remote-debugging-address=0.0.0.0 --remote-debugging-port=9222
+ * http://127.0.0.1:9222/json/version
+ */
+export const BROWSER_WS_ENDPOINT = 'ws://127.0.0.1:9222/devtools/browser/b47b4986-3888-4cd7-bba5-10ba13b26d23'

@@ -124,6 +124,9 @@ export function delay(milliseconds: number) {
  */
 export async function deleteFile(filePath: string): Promise<boolean> {
   try {
+    if (!isFileExists(filePath)) {
+      return false
+    }
     // 使用 fs.promises.unlink() 方法删除文件
     await fs.promises.unlink(filePath);
     console.log(`文件 ${filePath} 删除成功`);

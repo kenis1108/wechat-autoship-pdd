@@ -65,13 +65,14 @@ class SQLiteDB {
    * insert单条数据
    * @param tableName 
    * @param data 
+   * @param isReplace 是否在存在唯一值冲突的时候替换所有值
    */
-  public insertOne<T extends Row>(tableName: string, data: T) {
+  public insertOne<T extends Row>(tableName: string, data: T, isReplace?: boolean) {
     try {
       // 构建 INSERT 语句
       const columns = Object.keys(data).join(', ');
       const placeholders = Object.keys(data).map(() => '?').join(', ');
-      const sql = `INSERT INTO ${tableName} (${columns}) VALUES (${placeholders})`;
+      const sql = `INSERT ${isReplace ? 'OR REPLACE' : ''} INTO ${tableName} (${columns}) VALUES (${placeholders})`;
       // 准备 INSERT 语句
       const stmt = this.db.prepare(sql);
       // 执行 INSERT 语句
