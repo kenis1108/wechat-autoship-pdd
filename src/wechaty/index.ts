@@ -200,10 +200,12 @@ class MatchOrdText {
   /** 返回提取的结果 */
   public match() {
     if (this.regex.test(this.input)) {
-      const skuAndQuantity = this.input.split('\n')?.[2]?.split('。')?.[1]?.trim()
+      const thirdLine = this.input.split('\n')?.[2]
+      const punctuation = thirdLine?.includes('。') ? '。' : '.'
+      let skuAndQuantity = this.input.split('\n')?.[2]?.split(punctuation)?.[1]?.trim()
       this.curSku = skuAndQuantity
-      if (skuAndQuantity.includes(SYMBOLS_FORFFERENT_PRODUCTS)) {
-        return skuAndQuantity.split(SYMBOLS_FORFFERENT_PRODUCTS).map(item => {
+      if (skuAndQuantity?.includes(SYMBOLS_FORFFERENT_PRODUCTS)) {
+        return skuAndQuantity?.split(SYMBOLS_FORFFERENT_PRODUCTS).map(item => {
           return this.matchOne(item)
         })
       } else {

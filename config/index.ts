@@ -74,4 +74,4 @@ export const SYMBOLS_FORFFERENT_PRODUCTS = '➕'
  * msedge.exe --remote-debugging-address=0.0.0.0 --remote-debugging-port=9222
  * http://127.0.0.1:9222/json/version
  */
-export const BROWSER_WS_ENDPOINT = 'ws://127.0.0.1:9222/devtools/browser/b47b4986-3888-4cd7-bba5-10ba13b26d23'
+export const BROWSER_WS_ENDPOINT = 'ws://127.0.0.1:9222/devtools/browser/af6fd625-297b-43cc-8bf6-cc7636a40eba'
