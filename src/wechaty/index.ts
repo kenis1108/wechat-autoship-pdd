@@ -158,7 +158,7 @@ class MatchOrdText {
     const db = new SQLiteDB('autoship.db');
     const result = db.queryDistinctColumnByCond(productTable, 'alias')?.map(i => i.alias)?.filter(Boolean)?.map(i => i.includes('，') ? i.split('，') : i).flat()
     db.close()
-    return result?.length ? [...new Set(result)]: []
+    return result?.length ? [...new Set(result)] : []
   }
 
   /** 提取单个商品 */
@@ -281,7 +281,7 @@ async function onMessage(msg: MessageInterface) {
       }
     })
     total.etPrice = calculateETPrice(total.quantity)
-    ordMsgs?.[0]?.alias && msg.say(`${total.sku} 共${total.quantity}件 运费共${total.etPrice}元 总计${total?.cost + total.etPrice}元`)
+    ordMsgs?.[0]?.alias?.length && msg.say(`${total.sku} 共${total.quantity}件 运费共${total.etPrice}元 总计${total?.cost + total.etPrice}元`)
   }
 
   /**
