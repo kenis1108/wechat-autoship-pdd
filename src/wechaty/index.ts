@@ -2,7 +2,7 @@
  * @Author: kenis 1836362346@qq.com
  * @Date: 2024-03-15 15:12:37
  * @LastEditors: kenis 1836362346@qq.com
- * @LastEditTime: 2024-03-21 22:32:14
+ * @LastEditTime: 2024-03-22 11:28:37
  * @FilePath: \wechat-autoship-pdd\src\wechaty\index.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -10,7 +10,7 @@ import { ScanStatus, WechatyBuilder, log } from "wechaty";
 import qrcodeTerminal from 'qrcode-terminal';
 import { MessageInterface } from "wechaty/impls";
 import moment from "moment";
-import { ALIAS_UNIT_OF_ORDER, DATE_FORMAT, NOT_IN_FORMAT_MSG, QUANTITY_UNIT_OF_ORDER, SPIDER_MODE, SYMBOLS_FORFFERENT_PRODUCTS, WECHAT_HEADER_DATA } from "../../config";
+import { DATE_FORMAT, NOT_IN_FORMAT_MSG, QUANTITY_UNIT_OF_ORDER, SPIDER_MODE, SYMBOLS_FORFFERENT_PRODUCTS, WECHAT_HEADER_DATA } from "../../config";
 import { MessageTimeDiff, calculateETPrice, delay } from "../../utils";
 import { exec } from "child_process";
 import { startSpider } from "../spider";
@@ -121,6 +121,8 @@ class MatchOrdText {
   private regex = /.+(\[\d{4}\])?\n1[0-9]{10}\n([\u4e00-\u9fa5]+[省|市])\s([\u4e00-\u9fa5]+市)\s([\u4e00-\u9fa5]+[市|区|镇])\s.*/
   public input;
   public curSku: string;
+  /** 报单的款式单位 */
+  public aliasUnitOfOrder: string[]
   /** 
    * 匹配 
    * 收货人+(分机号)?\n
@@ -149,6 +151,14 @@ class MatchOrdText {
   constructor(input: string) {
     this.input = input
     this.curSku = ''
+    this.aliasUnitOfOrder = this.getAliasUnitOfOrder()
+  }
+
+  private getAliasUnitOfOrder() {
+    const db = new SQLiteDB('autoship.db');
+    const result = db.queryDistinctColumnByCond(productTable, 'alias')?.map(i => i.alias)?.filter(Boolean)?.map(i => i.includes('，') ? i.split('，') : i).flat()
+    db.close()
+    return result?.length ? [...new Set(result)]: []
   }
 
   /** 提取单个商品 */
@@ -171,12 +181,12 @@ class MatchOrdText {
     }
     // 找到款式单位的位置
     let cycles = 0
-    for (let index = 0; index < ALIAS_UNIT_OF_ORDER.length; index++) {
+    for (let index = 0; index < this.aliasUnitOfOrder.length; index++) {
       // 最多两个款式
       if (cycles === 2) {
         break
       }
-      const element = ALIAS_UNIT_OF_ORDER[index];
+      const element = this.aliasUnitOfOrder[index];
       if (sku.includes(element)) {
         alias.push(element)
         cycles++
@@ -270,9 +280,8 @@ async function onMessage(msg: MessageInterface) {
         msg.say(`${ordMsg?.sku}不包括运费要多少钱？`)
       }
     })
-    // 
     total.etPrice = calculateETPrice(total.quantity)
-    ordMsgs && msg.say(`${total.sku} 共${total.quantity}件 运费共${total.etPrice}元 总计${total?.cost + total.etPrice}元`)
+    ordMsgs?.[0]?.alias && msg.say(`${total.sku} 共${total.quantity}件 运费共${total.etPrice}元 总计${total?.cost + total.etPrice}元`)
   }
 
   /**

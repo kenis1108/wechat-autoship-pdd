@@ -2,13 +2,13 @@
  * @Author: kenis 1836362346@qq.com
  * @Date: 2024-03-08 22:51:41
  * @LastEditors: kenis 1836362346@qq.com
- * @LastEditTime: 2024-03-20 18:11:44
+ * @LastEditTime: 2024-03-22 10:42:21
  * @FilePath: \wechaty-pdd-auto\src\xlsx.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
 import * as XLSX from 'xlsx';
 import { DATA_NUM_MSG, DEBOUNCE_TIME, MERGE_COLUMNS, ORDERQUERY_HEADER_DATA, SHIPPING_PATH, TEMPLATE_PATH, WECHAT_HEADER_DATA } from '../../config';
-import { isFileExists, mergeTablesByColumn } from "../../utils";
+import { deleteFile, isFileExists, mergeTablesByColumn } from "../../utils";
 import _ from 'lodash';
 import { MessageInterface } from 'wechaty/impls';
 import { AppendDataToXlsxParams } from '../../@types';
@@ -18,6 +18,7 @@ import SQLiteDB from '../../models';
 import { ShippingTableRow, shippingTable } from '../../models/tables/shipping';
 import { WechatyTableRow, wechatyTable } from '../../models/tables/wechaty';
 import { orderQueryTable, orderQueryTableRow } from '../../models/tables/orderQuery';
+import shipping from '../spider/puppeteer/shipping';
 
 /**
  * 新建xlsx文件
@@ -95,6 +96,7 @@ export function readExcelToJson(filePath: string): string[][] {
  * 合并两个文件生产新的符合拼多多发货模板的xlsx文件
  */
 async function mergeXlsx(wechatyInstance: MessageInterface) {
+  deleteFile(SHIPPING_PATH)
   /** 根据收件人名称合并orderQuery表和wechaty表的数据生成符合拼多多发货模板的xlsx */
   log.info('根据收件人名称合并orderQuery表和wechaty表的数据生成符合拼多多发货模板的xlsx');
   const db = new SQLiteDB('autoship.db');
@@ -136,6 +138,8 @@ async function mergeXlsx(wechatyInstance: MessageInterface) {
   //   })
   // })
   db.close()
+
+  shipping()
 }
 
 /** 防抖：规定时间内如果没有接收到新的消息就启动合并文件的程序，有就重新计时 */

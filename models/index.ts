@@ -2,7 +2,7 @@
  * @Author: kenis 1836362346@qq.com
  * @Date: 2024-03-16 10:08:46
  * @LastEditors: kenis 1836362346@qq.com
- * @LastEditTime: 2024-03-20 15:13:51
+ * @LastEditTime: 2024-03-22 10:56:52
  * @FilePath: \wechat-autoship-pdd\models\index.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -100,6 +100,28 @@ class SQLiteDB {
       return [];
     }
   }
+
+  /**
+   * 查询表中所有符合条件并去重的一列数据
+   * @param tableName 要查询的表名
+   * @param dColumn 去重的列名
+   * @param condition 查询条件
+   * @returns 查询结果数组
+   */
+  public queryDistinctColumnByCond(tableName: string, dColumn: string, condition?: string): any[] {
+    try {
+      // 构建 SQL 查询语句
+      const sql = condition ? `SELECT DISTINCT ${dColumn} FROM ${tableName} WHERE ${condition}` : `SELECT DISTINCT ${dColumn} FROM ${tableName}`;
+      // 准备查询语句
+      const stmt = this.db.prepare(sql);
+      // 执行查询并返回结果数组
+      return stmt.all();
+    } catch (err) {
+      log.error(err as any)
+      return [];
+    }
+  }
+
 
   /** 关闭数据库连接 */
   public close(): void {
