@@ -2,13 +2,13 @@
  * @Author: kenis 1836362346@qq.com
  * @Date: 2024-03-08 22:51:41
  * @LastEditors: kenis 1836362346@qq.com
- * @LastEditTime: 2024-03-22 10:42:21
+ * @LastEditTime: 2024-03-25 23:01:19
  * @FilePath: \wechaty-pdd-auto\src\xlsx.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
 import * as XLSX from 'xlsx';
 import { DATA_NUM_MSG, DEBOUNCE_TIME, MERGE_COLUMNS, ORDERQUERY_HEADER_DATA, SHIPPING_PATH, TEMPLATE_PATH, WECHAT_HEADER_DATA } from '../../config';
-import { deleteFile, isFileExists, mergeTablesByColumn } from "../../utils";
+import { deleteFile, isFileExists, mergeTablesByColumn, mergeTablesByColumns } from "../../utils";
 import _ from 'lodash';
 import { MessageInterface } from 'wechaty/impls';
 import { AppendDataToXlsxParams } from '../../@types';
@@ -115,7 +115,12 @@ async function mergeXlsx(wechatyInstance: MessageInterface) {
     data2.push([orderNum, productTitle, consignee, extensionNum, address, sku, transactionTime])
   })
 
-  const mergeData = mergeTablesByColumn([...WECHAT_HEADER_DATA, ...data1], [...ORDERQUERY_HEADER_DATA, ...data2], MERGE_COLUMNS)
+  // TODO：
+  // 1. 有收件人，有分机号 ----- 收件人相同，分机号不同
+  // 2. 有收件人，没有分机号
+  // const mergeData = mergeTablesByColumn([...WECHAT_HEADER_DATA, ...data1], [...ORDERQUERY_HEADER_DATA, ...data2], MERGE_COLUMNS)
+
+  const mergeData = mergeTablesByColumns([...WECHAT_HEADER_DATA, ...data1], [...ORDERQUERY_HEADER_DATA, ...data2], ['收件人名称', '分机号'])
 
   log.info(JSON.stringify(mergeData));
   // 如果该数组长度<2,说明没有找到匹配的订单号

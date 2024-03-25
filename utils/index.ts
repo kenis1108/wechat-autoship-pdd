@@ -2,7 +2,7 @@
  * @Author: kenis 1836362346@qq.com
  * @Date: 2024-03-08 20:21:59
  * @LastEditors: kenis 1836362346@qq.com
- * @LastEditTime: 2024-03-20 11:56:53
+ * @LastEditTime: 2024-03-25 23:00:58
  * @FilePath: \wechaty-pdd-auto\src\utils.ts
  * @Description: 存放工具函数的文件
  */
@@ -56,7 +56,9 @@ export async function getFileCreateTime(filePath: string) {
   }
 }
 
-/** 根据某列的值来合并两个二维数组 */
+/** 
+ * 根据某列的值来合并两个二维数组 
+ */
 export function mergeTablesByColumn(table1: any[][], table2: any[][], mergeColumn: string): any[][] {
   // 找到指定列的索引
   const columnIndex1 = table1[0].indexOf(mergeColumn);
@@ -87,6 +89,51 @@ export function mergeTablesByColumn(table1: any[][], table2: any[][], mergeColum
   const mergedTable = [mergedColumns, ...mergedData];
   return extractColumns(mergedTable, SHIPPING_TEMPLATE_COLUMNS);
 }
+
+/** 
+ * 根据某些列的值来合并两个二维数组 
+ * 函数会检查每个指定的列是否同时存在于两个表格中，只有在两个表格中都存在的列才会被用于比较
+ */
+export function mergeTablesByColumns(table1: any[][], table2: any[][], mergeColumns: string[]): any[][] {
+  // 找到两个表格中都存在的指定列的索引
+  const columnIndices1: number[] = [];
+  const columnIndices2: number[] = [];
+
+  mergeColumns.forEach((column) => {
+    if (table1[0].includes(column) && table2[0].includes(column)) {
+      columnIndices1.push(table1[0].indexOf(column));
+      columnIndices2.push(table2[0].indexOf(column));
+    }
+  });
+
+  // 合并列名
+  const mergedColumns = [...table1[0], ...table2[0], SHIPPING_NAME.label];
+
+  // 合并数据行
+  const mergedData = [];
+  for (let i = 1; i < table1.length; i++) {
+    for (let j = 1; j < table2.length; j++) {
+      // 初始化标志，用于判断所有指定列的值是否都相同
+      let allColumnsMatch = true;
+      mergeColumns.forEach((column, index) => {
+        if (table1[i][columnIndices1[index]] !== table2[j][columnIndices2[index]]) {
+          allColumnsMatch = false;
+        }
+      });
+
+      // 如果所有指定列的值都相同，则合并行数据
+      if (allColumnsMatch) {
+        const mergedRow = [...table1[i], ...table2[j], SHIPPING_NAME.value];
+        mergedData.push(mergedRow);
+      }
+    }
+  }
+
+  // 构建新表格
+  const mergedTable = [mergedColumns, ...mergedData];
+  return extractColumns(mergedTable, SHIPPING_TEMPLATE_COLUMNS);
+}
+
 
 /** 从二维数组中提取想要的列构成新的二维数组 */
 export function extractColumns(originalArray: any[][], columnsToExtract: string[]): any[][] {
