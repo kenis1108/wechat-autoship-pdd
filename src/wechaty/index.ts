@@ -2,7 +2,7 @@
  * @Author: kenis 1836362346@qq.com
  * @Date: 2024-03-15 15:12:37
  * @LastEditors: kenis 1836362346@qq.com
- * @LastEditTime: 2024-03-22 11:28:37
+ * @LastEditTime: 2024-03-25 20:24:35
  * @FilePath: \wechat-autoship-pdd\src\wechaty\index.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -118,7 +118,7 @@ function matchETNText(input: string): string[] {
  * 从文本里拆分出sku+数量
  */
 class MatchOrdText {
-  private regex = /.+(\[\d{4}\])?\n1[0-9]{10}\n([\u4e00-\u9fa5]+[省|市])\s([\u4e00-\u9fa5]+市)\s([\u4e00-\u9fa5]+[市|区|镇])\s.*/
+  private regex = /.+(\[\d{4}\])?\n1[0-9]{10}\n([\u4e00-\u9fa5]+[省|市])\s([\u4e00-\u9fa5]+[市|州|划])\s([\u4e00-\u9fa5]+[市|区|镇|县])\s.*/
   public input;
   public curSku: string;
   /** 报单的款式单位 */
@@ -145,7 +145,15 @@ class MatchOrdText {
    * 张寿梅[3922]
    * 17281944786
    * 山东省 济南市 历下区 山东省济南市历山路70号[3922]。        鎏金色小号两套➕银白色小号三套➕鎏金色底座单买
-   * 
+   * 5.
+   * 阿坤[0158]
+   * 19592431600
+   * 云南省 西双版纳傣族自治州 景洪市 工业园区转帮康吉速 BK 宏祥公寓A501 - 09697661960[0158]。   浅金色大号一套
+   * 6.
+   * 蓝天[5809]
+   * 17283407211
+   * 海南省 省直辖县级行政区划 澄迈县 澄迈老城开发区天赐上湾[5809]。        A款浅金色链黄色皮100cm
+
    * 提取出alias  X款 Xcm X号 底座单买 “SELECT DISTINCT alias  FROM product p;”
    */
   constructor(input: string) {
