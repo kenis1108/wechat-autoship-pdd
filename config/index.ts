@@ -32,7 +32,7 @@ export const ORDERQUERY_HEADER_DATA = [
 /** 最终的发货文件的列配置 */
 export const SHIPPING_TEMPLATE_COLUMNS = ['订单号', '快递公司', '快递单号']
 /** 根据特定列的值来合并两个表 */
-export const MERGE_COLUMNS = '收件人名称'
+export const MERGE_COLUMNS = ['收件人名称', '分机号']
 
 /* -------------------------------------------------------------------------- */
 /*                                   prompt                                   */

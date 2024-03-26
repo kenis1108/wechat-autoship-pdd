@@ -57,40 +57,6 @@ export async function getFileCreateTime(filePath: string) {
 }
 
 /** 
- * 根据某列的值来合并两个二维数组 
- */
-export function mergeTablesByColumn(table1: any[][], table2: any[][], mergeColumn: string): any[][] {
-  // 找到指定列的索引
-  const columnIndex1 = table1[0].indexOf(mergeColumn);
-  const columnIndex2 = table2[0].indexOf(mergeColumn);
-
-  // 如果未找到指定列，直接返回原始表格
-  if (columnIndex1 === -1 || columnIndex2 === -1) {
-    log.error(`Column "${mergeColumn}" not found in one of the tables.`);
-    return [];
-  }
-
-  // 合并列名
-  const mergedColumns = [...table1[0], ...table2[0], SHIPPING_NAME.label];
-
-  // 合并数据行
-  const mergedData = [];
-  for (let i = 1; i < table1.length; i++) {
-    for (let j = 1; j < table2.length; j++) {
-      // 如果指定列的值相同，则合并行数据
-      if (table1[i][columnIndex1] === table2[j][columnIndex2]) {
-        const mergedRow = [...table1[i], ...table2[j], SHIPPING_NAME.value];
-        mergedData.push(mergedRow);
-      }
-    }
-  }
-
-  // 构建新表格
-  const mergedTable = [mergedColumns, ...mergedData];
-  return extractColumns(mergedTable, SHIPPING_TEMPLATE_COLUMNS);
-}
-
-/** 
  * 根据某些列的值来合并两个二维数组 
  * 函数会检查每个指定的列是否同时存在于两个表格中，只有在两个表格中都存在的列才会被用于比较
  */

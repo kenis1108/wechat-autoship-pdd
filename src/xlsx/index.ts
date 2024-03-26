@@ -8,7 +8,7 @@
  */
 import * as XLSX from 'xlsx';
 import { DATA_NUM_MSG, DEBOUNCE_TIME, MERGE_COLUMNS, ORDERQUERY_HEADER_DATA, SHIPPING_PATH, TEMPLATE_PATH, WECHAT_HEADER_DATA } from '../../config';
-import { deleteFile, isFileExists, mergeTablesByColumn, mergeTablesByColumns } from "../../utils";
+import { deleteFile, isFileExists, mergeTablesByColumns } from "../../utils";
 import _ from 'lodash';
 import { MessageInterface } from 'wechaty/impls';
 import { AppendDataToXlsxParams } from '../../@types';
@@ -118,9 +118,7 @@ async function mergeXlsx(wechatyInstance: MessageInterface) {
   // TODO：
   // 1. 有收件人，有分机号 ----- 收件人相同，分机号不同
   // 2. 有收件人，没有分机号
-  // const mergeData = mergeTablesByColumn([...WECHAT_HEADER_DATA, ...data1], [...ORDERQUERY_HEADER_DATA, ...data2], MERGE_COLUMNS)
-
-  const mergeData = mergeTablesByColumns([...WECHAT_HEADER_DATA, ...data1], [...ORDERQUERY_HEADER_DATA, ...data2], ['收件人名称', '分机号'])
+  const mergeData = mergeTablesByColumns([...WECHAT_HEADER_DATA, ...data1], [...ORDERQUERY_HEADER_DATA, ...data2], MERGE_COLUMNS)
 
   log.info(JSON.stringify(mergeData));
   // 如果该数组长度<2,说明没有找到匹配的订单号
