@@ -2,7 +2,7 @@
  * @Author: kenis 1836362346@qq.com
  * @Date: 2024-03-15 15:12:37
  * @LastEditors: kenis 1836362346@qq.com
- * @LastEditTime: 2024-03-25 20:24:35
+ * @LastEditTime: 2024-03-27 20:41:41
  * @FilePath: \wechat-autoship-pdd\src\wechaty\index.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -118,7 +118,7 @@ function matchETNText(input: string): string[] {
  * 从文本里拆分出sku+数量
  */
 class MatchOrdText {
-  private regex = /.+(\[\d{4}\])?\n1[0-9]{10}\n([\u4e00-\u9fa5]+[省|市])\s([\u4e00-\u9fa5]+[市|州|划])\s([\u4e00-\u9fa5]+[市|区|镇|县])\s.*/
+  private regex = /.+(\[\d{4}\])?\n1[0-9]{10}\n([\u4e00-\u9fa5]+[省|市|区])\s([\u4e00-\u9fa5]+[市|州|划])\s([\u4e00-\u9fa5]+[市|区|镇|县])\s.*/
   public input;
   public curSku: string;
   /** 报单的款式单位 */

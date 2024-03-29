@@ -3,7 +3,7 @@
 * @Author: kenis 1836362346@qq.com
 * @Date: 2024-03-13 18:35:20
  * @LastEditors: kenis 1836362346@qq.com
- * @LastEditTime: 2024-03-21 22:24:00
+ * @LastEditTime: 2024-03-29 22:20:16
 * @FilePath: \wechat-autoship-pdd\src\test.ts
 * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 */
@@ -142,7 +142,7 @@ const startPuppeteer = async () => {
     if (orderNumElementHandle) {
       const elementText = await orderNumElementHandle.evaluate((element: Element) => element.textContent);
       log.info('待发货订单数：', elementText);
-      if(!Number(elementText)){
+      if (!Number(elementText)) {
         return
       }
     } else {
@@ -173,7 +173,9 @@ const startPuppeteer = async () => {
           const sku = await getTextWithJSHandle(od, _skuSelector)
           const address = await getTextWithJSHandle(od, _addressSelector)
           const consignee = await getTextWithJSHandle(od, _consigneeSelector)
-          const extensionNum = (await getTextWithJSHandle(od, _extensionNumSelector)).slice(1, 5)
+          // 分机号需要判断一下，没有分机号的订单可能会拿到那个“复制完整信息”的文本
+          const _eN = await getTextWithJSHandle(od, _extensionNumSelector)
+          const extensionNum = (/^\[\d{4}\]$/.test(_eN) ? _eN.slice(1, 5) : '')
           // log.info("🚀 ~ 订单编号:", orderNum)
           // log.info("🚀 ~ 成交时间:", transactionTime)
           // log.info("🚀 ~ 商品标题:", productTitle)
