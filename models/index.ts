@@ -28,7 +28,7 @@ class SQLiteDB {
   /** 
    * 创建新表
    */
-  private createTableIfNotExists(tableName: string, sql: string) {
+  public createTableIfNotExists(tableName: string, sql: string) {
     // 检查表是否存在 
     // @ts-ignore 
     const tableExists = this.db.prepare(`SELECT count(*) as count FROM sqlite_master WHERE type='table' AND name=?`).get(tableName).count > 0;
