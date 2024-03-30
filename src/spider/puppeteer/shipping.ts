@@ -2,7 +2,7 @@
  * @Author: kenis 1836362346@qq.com
  * @Date: 2024-03-15 15:46:48
  * @LastEditors: kenis 1836362346@qq.com
- * @LastEditTime: 2024-03-27 17:01:21
+ * @LastEditTime: 2024-03-30 23:33:03
  * @FilePath: \wechat-autoship-pdd\src\spider\puppeteer\shipping.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -14,17 +14,19 @@ import { delay } from "../../../utils";
 import puppeteer from 'puppeteer-extra';
 import pluginStealth from 'puppeteer-extra-plugin-stealth';
 import { MessageInterface } from "wechaty/impls";
+import SQLiteDB from "../../../models";
+import { ShippingTableRow, shippingTable } from "../../../models/tables/shipping";
 puppeteer.use(pluginStealth());
 
 /** 发货按钮 TODO: 如果有催发货就找不到发货按钮 */
 export const shippingBtnSelector = '[data-testid="beast-core-button"]:nth-child(1)';
 /** 发货弹窗 */
 const shippingModalSelector = '.PP_popoverContent_5-110-0 > div > [data-testid="beast-core-box"]:nth-child(2)';
-/** 二维数组中，通过匹配第一个元素返回第三个元素 */
-export function findThirdElement(arr: any[][], target: string): string | null {
+/** 二维数组中，通过匹配第一个元素返回第二个元素 */
+export function findSecondElement(arr: any[][], target: string): string | null {
   for (const subArr of arr) {
     if (subArr[0] === target) {
-      return subArr[2];
+      return subArr[1];
     }
   }
   return null; // 如果找不到匹配的值，返回 null
@@ -32,9 +34,14 @@ export function findThirdElement(arr: any[][], target: string): string | null {
 
 /** 自动发货 */
 export default async (wechatyInstance?: MessageInterface) => {
-  // 获取shipping.xlsx的数据
-  const shippingData = readExcelToJson(SHIPPING_PATH).slice(2);
-  console.log("🚀 ~ shippingData:", shippingData)
+  const db = new SQLiteDB('autoship.db');
+  const shippingData: string[][] = []
+  // 只要24小时内并且未发货的数据
+  db.queryByCond(shippingTable, "createdAt >= datetime('now', '-24 hours') AND isShipped = 0")?.forEach((item: ShippingTableRow) => {
+    const { orderNum, expressTrackingNum } = item
+    shippingData.push([orderNum, expressTrackingNum])
+  })
+  console.log("🚀 ~ db.queryByCond ~ shippingData:", shippingData)
   if (!shippingData?.length) {
     return
   }
@@ -60,7 +67,7 @@ export default async (wechatyInstance?: MessageInterface) => {
           // 第一步：先找到订单编号
           const orderNum = (await getTextWithJSHandle(od, _orderNumSelector)).slice(5)
           // 第二步：找到该订单编号匹配的快递单号
-          const expressTrackingNum = findThirdElement(shippingData, orderNum)
+          const expressTrackingNum = findSecondElement(shippingData, orderNum)
           if (expressTrackingNum) {
             log.info(`🚀 ~ 订单编号和匹配的快递单号: ${orderNum} ${expressTrackingNum}`)
             // 第三步：找到发货按钮
