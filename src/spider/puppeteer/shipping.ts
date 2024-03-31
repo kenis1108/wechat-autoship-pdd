@@ -2,7 +2,7 @@
  * @Author: kenis 1836362346@qq.com
  * @Date: 2024-03-15 15:46:48
  * @LastEditors: kenis 1836362346@qq.com
- * @LastEditTime: 2024-03-30 23:33:03
+ * @LastEditTime: 2024-03-30 23:51:08
  * @FilePath: \wechat-autoship-pdd\src\spider\puppeteer\shipping.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -107,6 +107,8 @@ export default async (wechatyInstance?: MessageInterface) => {
             }
             // await page.screenshot({ path: `example${index}.png` });
             wechatyInstance && wechatyInstance.say(`${expressTrackingNum}-发货成功`)
+            // 更新数据库里的是否发货字段
+            db.updateRecord<{ isShipped: 0 | 1 }>(shippingTable, { isShipped: 1 }, `orderNum = ${orderNum}`)
           }
         } else {
           continue
@@ -119,4 +121,5 @@ export default async (wechatyInstance?: MessageInterface) => {
   } catch (err) {
     console.log("🚀 ~ err:", err)
   }
+  db.close()
 }
