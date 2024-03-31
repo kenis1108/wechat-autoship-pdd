@@ -2,7 +2,7 @@
  * @Author: kenis 1836362346@qq.com
  * @Date: 2024-03-15 15:46:48
  * @LastEditors: kenis 1836362346@qq.com
- * @LastEditTime: 2024-03-30 23:51:08
+ * @LastEditTime: 2024-03-31 20:32:30
  * @FilePath: \wechat-autoship-pdd\src\spider\puppeteer\shipping.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -76,6 +76,7 @@ export default async (wechatyInstance?: MessageInterface) => {
             await delay(2000)
             // 第四步：找到发货弹窗
             const modalHandle = await page.$(shippingModalSelector)
+            await page.waitForSelector(shippingModalSelector)
             const modalInputsHandle = await modalHandle!.$$('input')
             const modalConfirmBtnHandle = await modalHandle!.$('[data-tracking-click-viewid="ele_confirm_shipment_shared"]')
             for (const [index, mi] of modalInputsHandle.entries()) {
@@ -108,7 +109,7 @@ export default async (wechatyInstance?: MessageInterface) => {
             // await page.screenshot({ path: `example${index}.png` });
             wechatyInstance && wechatyInstance.say(`${expressTrackingNum}-发货成功`)
             // 更新数据库里的是否发货字段
-            db.updateRecord<{ isShipped: 0 | 1 }>(shippingTable, { isShipped: 1 }, `orderNum = ${orderNum}`)
+            db.updateRecord<{ isShipped: 0 | 1 }>(shippingTable, { isShipped: 1 }, `orderNum = '${orderNum}'`)
           }
         } else {
           continue

@@ -2,7 +2,7 @@
  * @Author: kenis 1836362346@qq.com
  * @Date: 2024-03-16 10:08:46
  * @LastEditors: kenis 1836362346@qq.com
- * @LastEditTime: 2024-03-30 23:47:08
+ * @LastEditTime: 2024-03-31 20:26:56
  * @FilePath: \wechat-autoship-pdd\models\index.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -125,11 +125,10 @@ class SQLiteDB {
 
   /** 根据条件更新指定行 */
   public updateRecord<T extends { [key: string]: any }>(tableName: string, changes: T, condition: string) {
-    try{
+    try {
       const setValues = Object.keys(changes).map(key => `${key} = ?`).join(', ');
       const stmt = this.db.prepare(`UPDATE ${tableName} SET ${setValues} WHERE ${condition}`);
       stmt.run(...Object.values(changes));
-      console.log("记录更新成功！");
     } catch (err) {
       log.error(err as any)
       return [];
