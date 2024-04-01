@@ -2,7 +2,7 @@
  * @Author: kenis 1836362346@qq.com
  * @Date: 2024-03-09 11:39:45
  * @LastEditors: kenis 1836362346@qq.com
- * @LastEditTime: 2024-03-25 22:55:33
+ * @LastEditTime: 2024-04-01 20:24:28
  * @FilePath: \wechaty-pdd-auto\src\config.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -48,7 +48,7 @@ export const DATA_NUM_MSG = (num: number) => num ? `提示：找到${num}条匹�
 export const SHIPPING_NAME = { label: '快递公司', value: '中通快递' }
 export const DATE_FORMAT = "YYYY-MM-DD HH:mm:ss"
 /** 配置接收信息后的启动合并文件的防抖时间 */
-export const DEBOUNCE_TIME = 30 * 1000
+export const DEBOUNCE_TIME = 10 * 1000
 /** 两次消息之间的时间差不能大于这个值 */
 export const TWO_MSG_TIME_DIFFERENCE = 60 * 1000
 /** 多久执行一次获取automa.json */

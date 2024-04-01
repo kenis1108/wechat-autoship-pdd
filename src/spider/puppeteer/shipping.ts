@@ -2,7 +2,7 @@
  * @Author: kenis 1836362346@qq.com
  * @Date: 2024-03-15 15:46:48
  * @LastEditors: kenis 1836362346@qq.com
- * @LastEditTime: 2024-03-31 20:32:30
+ * @LastEditTime: 2024-04-01 20:38:37
  * @FilePath: \wechat-autoship-pdd\src\spider\puppeteer\shipping.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -64,6 +64,10 @@ export default async (wechatyInstance?: MessageInterface) => {
           // 移动到元素可见的区域
           await od.scrollIntoView();
           await delay(2000)
+          // 执行 JavaScript 代码来向上滚动 10px
+          await page.evaluate(() => {
+            window.scrollBy(0, -70);
+          });
           // 第一步：先找到订单编号
           const orderNum = (await getTextWithJSHandle(od, _orderNumSelector)).slice(5)
           // 第二步：找到该订单编号匹配的快递单号
@@ -72,6 +76,7 @@ export default async (wechatyInstance?: MessageInterface) => {
             log.info(`🚀 ~ 订单编号和匹配的快递单号: ${orderNum} ${expressTrackingNum}`)
             // 第三步：找到发货按钮
             const sBtnHandle = await od.$(shippingBtnSelector)
+            await page.waitForSelector(shippingBtnSelector)
             await sBtnHandle!.click();
             await delay(2000)
             // 第四步：找到发货弹窗
