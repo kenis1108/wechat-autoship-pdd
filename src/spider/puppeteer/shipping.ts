@@ -2,7 +2,7 @@
  * @Author: kenis 1836362346@qq.com
  * @Date: 2024-03-15 15:46:48
  * @LastEditors: kenis 1836362346@qq.com
- * @LastEditTime: 2024-04-01 20:38:37
+ * @LastEditTime: 2024-04-02 11:28:58
  * @FilePath: \wechat-autoship-pdd\src\spider\puppeteer\shipping.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -37,7 +37,7 @@ export default async (wechatyInstance?: MessageInterface) => {
   const db = new SQLiteDB('autoship.db');
   const shippingData: string[][] = []
   // 只要24小时内并且未发货的数据
-  db.queryByCond(shippingTable, "createdAt >= datetime('now', '-24 hours') AND isShipped = 0")?.forEach((item: ShippingTableRow) => {
+  db.queryByCond(shippingTable, { condition: "createdAt >= datetime('now', '-24 hours') AND isShipped = 0" })?.forEach((item: ShippingTableRow) => {
     const { orderNum, expressTrackingNum } = item
     shippingData.push([orderNum, expressTrackingNum])
   })

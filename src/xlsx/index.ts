@@ -2,7 +2,7 @@
  * @Author: kenis 1836362346@qq.com
  * @Date: 2024-03-08 22:51:41
  * @LastEditors: kenis 1836362346@qq.com
- * @LastEditTime: 2024-03-30 22:00:06
+ * @LastEditTime: 2024-04-02 11:30:35
  * @FilePath: \wechaty-pdd-auto\src\xlsx.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -103,14 +103,14 @@ async function mergeXlsx(wechatyInstance: MessageInterface) {
 
   const data1: string[][] = []
   // 只要一个小时内接收的信息
-  db.queryByCond(wechatyTable, "createdAt >= datetime('now', '-1 hours')")?.forEach((item: WechatyTableRow) => {
+  db.queryByCond(wechatyTable, { condition: "createdAt >= datetime('now', '-1 hours')" })?.forEach((item: WechatyTableRow) => {
     const { expressTrackingNum, consignee, extensionNum = '', createdAt } = item
     data1.push([expressTrackingNum, consignee, extensionNum, createdAt as string])
   })
 
   const data2: string[][] = []
   // 拿出48小时内成交的
-  db.queryByCond(orderQueryTable, "transactionTime >= datetime('now', '-48 hours')")?.forEach((item: orderQueryTableRow) => {
+  db.queryByCond(orderQueryTable, { condition: "transactionTime >= datetime('now', '-48 hours')" })?.forEach((item: orderQueryTableRow) => {
     const { orderNum, productTitle, consignee, extensionNum = '', address, sku, transactionTime } = item
     data2.push([orderNum, productTitle, consignee, extensionNum, address, sku, transactionTime])
   })

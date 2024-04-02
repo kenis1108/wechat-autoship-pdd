@@ -12,8 +12,8 @@ import { SPIDER_MODE } from '../config';
 
 
 (async () => {
-  // TODO: 判断最新数据的时间来判断是否启动爬虫
-  // await startSpider(SPIDER_MODE);
+  // 启动爬虫
+  await startSpider(SPIDER_MODE);
   // 启动wechaty
   await bot.start()
 })()

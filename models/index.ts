@@ -2,13 +2,20 @@
  * @Author: kenis 1836362346@qq.com
  * @Date: 2024-03-16 10:08:46
  * @LastEditors: kenis 1836362346@qq.com
- * @LastEditTime: 2024-03-31 20:26:56
+ * @LastEditTime: 2024-04-02 11:31:19
  * @FilePath: \wechat-autoship-pdd\models\index.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
 import BetterSqlite3 from 'better-sqlite3';
 import { log } from 'wechaty';
 import tables from './tables'
+
+interface Options {
+  /** where字句 */
+  condition?:string;
+  /** 额外的子句 */
+  other?: string;
+}
 
 interface Row {
   [key: string]: any;
@@ -88,10 +95,17 @@ class SQLiteDB {
    * @param condition 查询条件
    * @returns 查询结果数组
    */
-  public queryByCond(tableName: string, condition?: string): any[] {
+  public queryByCond(tableName: string, options?:Options): any[] {
+    let condition = ''
+    let other = ''
+    if(options){
+      const {condition:_c, other:_o} = options
+      condition = _c || ''
+      other = _o || ''
+    }
     try {
       // 构建 SQL 查询语句
-      const sql = condition ? `SELECT * FROM ${tableName} WHERE ${condition}` : `SELECT * FROM ${tableName}`;
+      const sql = `SELECT * FROM ${tableName} ${condition ? 'WHERE ' + condition : ''} ${other ? other: ''}`;
       // 准备查询语句
       const stmt = this.db.prepare(sql);
       // 执行查询并返回结果数组
