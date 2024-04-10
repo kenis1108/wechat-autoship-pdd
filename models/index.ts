@@ -2,7 +2,7 @@
  * @Author: kenis 1836362346@qq.com
  * @Date: 2024-03-16 10:08:46
  * @LastEditors: kenis 1836362346@qq.com
- * @LastEditTime: 2024-04-02 11:31:19
+ * @LastEditTime: 2024-04-10 20:46:31
  * @FilePath: \wechat-autoship-pdd\models\index.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -77,8 +77,8 @@ class SQLiteDB {
   public insertOne<T extends Row>(tableName: string, data: T, isReplace?: boolean) {
     try {
       // 构建 INSERT 语句
-      const columns = Object.keys(data).join(', ');
-      const placeholders = Object.keys(data).map(() => '?').join(', ');
+      const columns = Object.keys(data).join(', ') + `, createdAt`;
+      const placeholders = Object.keys(data).map(() => '?').join(', ') + `, datetime('now', 'localtime')`;
       const sql = `INSERT ${isReplace ? 'OR REPLACE' : ''} INTO ${tableName} (${columns}) VALUES (${placeholders})`;
       // 准备 INSERT 语句
       const stmt = this.db.prepare(sql);
