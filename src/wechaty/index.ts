@@ -2,7 +2,7 @@
  * @Author: kenis 1836362346@qq.com
  * @Date: 2024-03-15 15:12:37
  * @LastEditors: kenis 1836362346@qq.com
- * @LastEditTime: 2024-03-27 20:41:41
+ * @LastEditTime: 2024-04-10 19:14:35
  * @FilePath: \wechat-autoship-pdd\src\wechaty\index.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -225,9 +225,6 @@ class MatchOrdText {
 
 /** message事件的回调 */
 async function onMessage(msg: MessageInterface) {
-  // 启动爬虫
-  await startSpider(SPIDER_MODE);
-
   const db = new SQLiteDB('autoship.db');
 
   const talker = msg.talker().name() // 发消息人
@@ -248,10 +245,8 @@ async function onMessage(msg: MessageInterface) {
 
   // 只对特定群里的特定信息做处理
   if (talker !== 'Ài' && room?.payload?.topic === 'wechaty-pdd-auto' && type === 7) {
-    // // 判断两条消息之间的时间差如果大于规定时间就获取订单数据
-    // const isDelGenerated = messageTimeDiff.receiveMessage(text)
-    // log.info(`isDelGenerated: ${isDelGenerated}`)
-    // isDelGenerated && await startSpider(SPIDER_MODE);
+    // 启动爬虫
+    await startSpider(SPIDER_MODE);
 
     /** 
      * 匹配报单信息
