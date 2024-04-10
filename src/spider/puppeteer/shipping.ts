@@ -2,7 +2,7 @@
  * @Author: kenis 1836362346@qq.com
  * @Date: 2024-03-15 15:46:48
  * @LastEditors: kenis 1836362346@qq.com
- * @LastEditTime: 2024-04-02 11:28:58
+ * @LastEditTime: 2024-04-10 10:29:07
  * @FilePath: \wechat-autoship-pdd\src\spider\puppeteer\shipping.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -33,7 +33,7 @@ export function findSecondElement(arr: any[][], target: string): string | null {
 }
 
 /** 自动发货 */
-export default async (wechatyInstance?: MessageInterface) => {
+export default async function startPuppeteer(wechatyInstance?: MessageInterface) {
   const db = new SQLiteDB('autoship.db');
   const shippingData: string[][] = []
   // 只要24小时内并且未发货的数据
@@ -126,6 +126,8 @@ export default async (wechatyInstance?: MessageInterface) => {
     // await browser.close()
   } catch (err) {
     console.log("🚀 ~ err:", err)
+    db.close()
+    startPuppeteer(wechatyInstance || undefined)
   }
   db.close()
 }

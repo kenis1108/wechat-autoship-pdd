@@ -2,7 +2,7 @@
  * @Author: kenis 1836362346@qq.com
  * @Date: 2024-03-18 10:08:26
  * @LastEditors: kenis 1836362346@qq.com
- * @LastEditTime: 2024-03-31 20:34:33
+ * @LastEditTime: 2024-04-03 22:24:02
  * @FilePath: \wechat-autoship-pdd\src\test.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -22,7 +22,7 @@ import { shippingTable } from "../models/tables/shipping";
 // startAutoma()
 
 // 测试puppeteer爬取订单查询的数据并将数据写入database
-// startPuppeteer()
+startPuppeteer()
 
 // 测试微信机器人读取微信群信息，计算成本价，生成发货模板
 // bot.start()

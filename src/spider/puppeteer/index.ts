@@ -3,7 +3,7 @@
 * @Author: kenis 1836362346@qq.com
 * @Date: 2024-03-13 18:35:20
  * @LastEditors: kenis 1836362346@qq.com
- * @LastEditTime: 2024-04-02 11:47:08
+ * @LastEditTime: 2024-04-06 21:47:44
 * @FilePath: \wechat-autoship-pdd\src\test.ts
 * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 */
@@ -168,8 +168,9 @@ const startPuppeteer = async () => {
         const elementText = await od.evaluate((element: Element) => element.textContent);
         if (elementText!.includes('订单编号')) {
           const orderNum = (await getTextWithJSHandle(od, _orderNumSelector)).slice(5)
-          // !TODO：测试有快递停用的提示的时候是否正确拿到成交时间
-          const transactionTime = (await getTextWithJSHandle(od, _transactionTimeSelector)).slice(-16)
+          // TODO：测试有快递停用的提示的时候无法正确拿到成交时间
+          const _ttT = await getTextWithJSHandle(od, _transactionTimeSelector)
+          const transactionTime = _ttT.includes('成交时间') ? (_ttT).slice(-16) : ''
           const productTitle = await getTextWithJSHandle(od, _productTitleSelector)
           const sku = await getTextWithJSHandle(od, _skuSelector)
           const address = await getTextWithJSHandle(od, _addressSelector)
@@ -230,7 +231,7 @@ export async function clickAllBtnWithQuery(page: any, selector: string, delay_nu
     // 移动到元素可见的区域
     await c.scrollIntoView();
     await c.click();
-    await delay(800)
+    await delay(1000)
 
   }
   log.info('完成点击所有匹配的元素')

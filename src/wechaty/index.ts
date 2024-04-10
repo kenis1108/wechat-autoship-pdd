@@ -225,6 +225,9 @@ class MatchOrdText {
 
 /** message事件的回调 */
 async function onMessage(msg: MessageInterface) {
+  // 启动爬虫
+  await startSpider(SPIDER_MODE);
+
   const db = new SQLiteDB('autoship.db');
 
   const talker = msg.talker().name() // 发消息人
@@ -279,7 +282,7 @@ async function onMessage(msg: MessageInterface) {
         ordMsg.alias.forEach(item => {
           condition += `alias LIKE '%${item}%' AND `
         })
-        const dataInDB = db.queryByCond(productTable, {condition:condition.slice(0, -5)})
+        const dataInDB = db.queryByCond(productTable, { condition: condition.slice(0, -5) })
         if (dataInDB?.[0]?.cost) {
           total.cost += Number(dataInDB?.[0]?.cost) * Number(ordMsg.quantity)
           total.quantity += Number(ordMsg.quantity)
