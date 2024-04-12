@@ -3,7 +3,7 @@
 * @Author: kenis 1836362346@qq.com
 * @Date: 2024-03-13 18:35:20
  * @LastEditors: kenis 1836362346@qq.com
- * @LastEditTime: 2024-04-06 21:47:44
+ * @LastEditTime: 2024-04-12 20:33:44
 * @FilePath: \wechat-autoship-pdd\src\test.ts
 * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 */
@@ -204,6 +204,13 @@ const startPuppeteer = async () => {
       }
     }
     db.close()
+  }
+
+  // 获取当前浏览器打开的所有标签页
+  const pages = await browser.pages();
+  // 如果标签页数量大于 1，则关闭当前页面
+  if (pages.length > 1) {
+    await page.close(); // 关闭当前页面
   }
   // await browser.close();
 };
