@@ -2,7 +2,7 @@
  * @Author: kenis 1836362346@qq.com
  * @Date: 2024-03-15 15:12:37
  * @LastEditors: kenis 1836362346@qq.com
- * @LastEditTime: 2024-04-10 20:38:58
+ * @LastEditTime: 2024-04-12 20:28:14
  * @FilePath: \wechat-autoship-pdd\src\wechaty\index.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -20,7 +20,7 @@ import { WechatyTableRow, wechatyTable } from "../../models/tables/wechaty";
 import { productTable } from "../../models/tables/product";
 import { zhToNumber } from "zh-to-number";
 
-// const messageTimeDiff = new MessageTimeDiff()
+const messageTimeDiff = new MessageTimeDiff()
 
 /** scan事件的回调 */
 async function onScan(qrcode: string, status: ScanStatus) {
@@ -245,10 +245,11 @@ async function onMessage(msg: MessageInterface) {
 
   // 只对特定群里的特定信息做处理
   if (talker !== 'Ài' && room?.payload?.topic === 'wechaty-pdd-auto' && type === 7) {
-    // 启动爬虫
-    await startSpider(SPIDER_MODE);
+    // 判断两条消息之间的时间差如果大于规定时间就获取订单数据
+    const isDelGenerated = messageTimeDiff.receiveMessage(text)
+    log.info(`isDelGenerated: ${isDelGenerated}`)
+    isDelGenerated && await startSpider(SPIDER_MODE);
 
-    
     /** 
      * 匹配报单信息
      * 1. 单种商品
