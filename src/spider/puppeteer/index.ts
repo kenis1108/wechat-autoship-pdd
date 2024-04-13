@@ -3,7 +3,7 @@
 * @Author: kenis 1836362346@qq.com
 * @Date: 2024-03-13 18:35:20
  * @LastEditors: kenis 1836362346@qq.com
- * @LastEditTime: 2024-04-12 20:33:44
+ * @LastEditTime: 2024-04-13 09:57:58
 * @FilePath: \wechat-autoship-pdd\src\test.ts
 * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 */
@@ -34,8 +34,12 @@ export const checkPhoneSelector = '[data-testid="beast-core-table-td"] > div > [
 export const orderDetailSelector = 'div.TB_innerMiddle_5-110-0 > div';
 /** 订单编号 */
 export const _orderNumSelector = '.TB_bodyGroupCell_5-110-0:nth-child(2) div:nth-child(1) > div:nth-child(1) > span:nth-child(1)'
-/** 成交时间 */
-export const _transactionTimeSelector = '.TB_bodyGroupHeader_5-110-0:nth-child(1) div:nth-child(2) > span:nth-child(1)'
+/** 
+ * 成交时间
+ * index 1 就是正常的成交时间
+ * index 2 是1取不到正常的成交时间的时候用的，取不到的时候是因为有提示：'如快递停运，可使用极兔/圆通发货'
+ */
+export const _transactionTimeSelector = (index: 1 | 2) => `.TB_bodyGroupHeader_5-110-0:nth-child(1) div:nth-child(2) > span:nth-child(${index})`
 /** 商品标题 */
 export const _productTitleSelector = '[data-testid="beast-core-table-td"]:nth-child(1) [data-testid="beast-core-ellipsis"]:nth-child(1) > .elli_outerWrapper_5-110-0:nth-child(1)'
 /** sku */
@@ -169,8 +173,8 @@ const startPuppeteer = async () => {
         if (elementText!.includes('订单编号')) {
           const orderNum = (await getTextWithJSHandle(od, _orderNumSelector)).slice(5)
           // TODO：测试有快递停用的提示的时候无法正确拿到成交时间
-          const _ttT = await getTextWithJSHandle(od, _transactionTimeSelector)
-          const transactionTime = _ttT.includes('成交时间') ? (_ttT).slice(-16) : ''
+          const _ttT = await getTextWithJSHandle(od, _transactionTimeSelector(1))
+          const transactionTime = _ttT.includes('成交时间') ? (_ttT).slice(-16) : (await getTextWithJSHandle(od, _transactionTimeSelector(2)))?.slice(-16) || ''
           const productTitle = await getTextWithJSHandle(od, _productTitleSelector)
           const sku = await getTextWithJSHandle(od, _skuSelector)
           const address = await getTextWithJSHandle(od, _addressSelector)
