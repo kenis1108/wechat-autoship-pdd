@@ -3,7 +3,7 @@
 * @Author: kenis 1836362346@qq.com
 * @Date: 2024-03-13 18:35:20
  * @LastEditors: kenis 1836362346@qq.com
- * @LastEditTime: 2024-04-22 16:34:14
+ * @LastEditTime: 2024-04-22 16:46:15
 * @FilePath: \wechat-autoship-pdd\src\test.ts
 * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 */
@@ -50,6 +50,9 @@ export const _addressSelector = '[data-testid="beast-core-box"]:nth-child(3) .el
 export const _consigneeSelector = '[data-testid="beast-core-table-body-tr"]:nth-child(2) span:nth-child(2)'
 /** 分机号 */
 export const _extensionNumSelector = '[data-testid="beast-core-table-td"]:nth-child(6) [data-testid="beast-core-box"]:nth-child(1) [data-testid="beast-core-box"]:nth-child(2)'
+
+/** 恭喜您！获得新疆/西藏直邮活动资格，请开通获取 弹窗的关闭按钮 */
+export const nextModalCloseSelector = '#__next > div > div.DirectMailSubsidy_magicButton__CFCoS > svg'
 /* -------------------------------------------------------------------------- */
 /*                               selector end                                 */
 /* -------------------------------------------------------------------------- */
@@ -138,6 +141,14 @@ const startPuppeteer = async () => {
   log.info(page.url())
   await delay(2000)
   if (page.url() === ORDER_QUERY_URL) {
+    // 是否有要开通什么的modal挡住了页面，拼多多老是搞这些弹窗出来恶心人
+    // 如果有要关闭它
+    const nextModalCloseHandle = await page.$(nextModalCloseSelector)
+    if (nextModalCloseHandle) {
+        await nextModalCloseHandle.click()
+    }
+
+    // 等待待发货元素出现
     await page.waitForSelector(orderSumSelector, {
       visible: true
     })

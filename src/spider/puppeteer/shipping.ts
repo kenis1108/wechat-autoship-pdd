@@ -2,12 +2,12 @@
  * @Author: kenis 1836362346@qq.com
  * @Date: 2024-03-15 15:46:48
  * @LastEditors: kenis 1836362346@qq.com
- * @LastEditTime: 2024-04-12 20:38:07
+ * @LastEditTime: 2024-04-22 16:52:06
  * @FilePath: \wechat-autoship-pdd\src\spider\puppeteer\shipping.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
 import { log } from "wechaty";
-import { BROWSER_WS_ENDPOINT, ORDER_QUERY_URL, SHIPPING_PATH } from "../../../config";
+import { ORDER_QUERY_URL, getBROWSER_WS_ENDPOINT } from "../../../config";
 import { _orderNumSelector, getTextWithJSHandle, puppeteerConnext, orderDetailSelector } from "."
 import { delay } from "../../../utils";
 import puppeteer from 'puppeteer-extra';
@@ -50,7 +50,7 @@ export default async function startPuppeteer(wechatyInstance?: MessageInterface)
     return
   }
   try {
-    const { browser, page } = await puppeteerConnext(BROWSER_WS_ENDPOINT)
+    const { browser, page } = await puppeteerConnext(getBROWSER_WS_ENDPOINT())
     await page.goto(ORDER_QUERY_URL);
     log.info(page.url())
     // 如果新消息弹窗要关闭它
