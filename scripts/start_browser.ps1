@@ -1,1 +1,1 @@
-msedge.exe --remote-debugging-address=0.0.0.0 --remote-debugging-port=9222
+msedge.exe --remote-debugging-address=0.0.0.0 --remote-debugging-port=9222 http://127.0.0.1:9222/json/version
