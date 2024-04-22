@@ -2,17 +2,19 @@
  * @Author: kenis 1836362346@qq.com
  * @Date: 2024-03-08 20:21:59
  * @LastEditors: kenis 1836362346@qq.com
- * @LastEditTime: 2024-03-25 23:00:58
+ * @LastEditTime: 2024-04-22 16:34:54
  * @FilePath: \wechaty-pdd-auto\src\utils.ts
  * @Description: 存放工具函数的文件
  */
 
-import { SHIPPING_TEMPLATE_COLUMNS, SHIPPING_NAME, TWO_MSG_TIME_DIFFERENCE, DATE_FORMAT } from "../config";
+import { SHIPPING_TEMPLATE_COLUMNS, SHIPPING_NAME, TWO_MSG_TIME_DIFFERENCE, DATE_FORMAT, JSON_VERSION_URL, setBROWSER_WS_ENDPOINT, getBROWSER_WS_ENDPOINT } from "../config";
 import * as fs from 'fs';
 import _ from "lodash";
 import * as fsp from 'fs/promises';
 import moment from "moment";
 import { log } from "wechaty";
+import axios from 'axios';
+import { exec } from "child_process";
 
 /* -------------------------------------------------------------------------- */
 /*                               String start                                 */
@@ -207,4 +209,23 @@ export function calculateETPrice(num: number): number {
   } else {
     return (quotient + 1) * 4;
   }
+}
+
+
+/** 
+ * 打开浏览器后获取BROWSER_WS_ENDPOINT
+ */
+export async function getBrowserWSEndpoint() {
+  exec('powershell scripts/start_browser.ps1')
+  await delay(3000)
+  await axios.get(JSON_VERSION_URL)
+    .then(({ data }) => {
+      if (data?.webSocketDebuggerUrl) {
+        setBROWSER_WS_ENDPOINT(data?.webSocketDebuggerUrl)
+        console.log("🚀 ~ .then ~ getBROWSER_WS_ENDPOINT():", getBROWSER_WS_ENDPOINT())
+      }
+    })
+    .catch(error => {
+      console.error(error);
+    });
 }
