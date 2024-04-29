@@ -2,7 +2,7 @@
  * @Author: kenis 1836362346@qq.com
  * @Date: 2024-03-15 15:12:37
  * @LastEditors: kenis 1836362346@qq.com
- * @LastEditTime: 2024-04-12 20:28:14
+ * @LastEditTime: 2024-04-29 11:01:31
  * @FilePath: \wechat-autoship-pdd\src\wechaty\index.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -42,22 +42,15 @@ async function onScan(qrcode: string, status: ScanStatus) {
  * 然后存入数组中
  * filter(Boolean) 的效果是将数组中的空字符串移除。
  */
-function matchETNText(input: string): string[] {
-  /**
-   * TODO: 测试下面是否能通过
-   * 1. 78779856323821   77[7105]
-   * 2. 78779855409756楊蕙慈
-   * 3. 78779856323821   77[7105]\s\s\s78779855409756楊蕙慈
-   * 4. 78779856323821   77[7105]\n78779855409756楊蕙慈
-   * 5. 78779855409756   楊蕙慈   78779855108257丫丫[3199]
-   * 6. 78779856323821   77 [7105]     78779855409756    楊蕙慈
-   */
+export function matchETNTextWithReg(input: string): string[] {
   /** 匹配 单号+收货人 单号+收货人+分机号 */
   const regex1 = /^\d{14}.+(\[\d{4}\])?/
   /** 匹配单号 */
   const regex2 = /\d{14}/
   const regex3 = /\]$/
+  const regex4 = /^\[/
   const matchingTextArray: string[] = [];
+  // First of all：分割以换行隔开的多个单号
   const lines = input.split(/\n/).filter(Boolean);
   for (const line of lines) {
     if (/\s+/.test(line)) {
@@ -92,7 +85,8 @@ function matchETNText(input: string): string[] {
                     } else {
                       isContinueArr.push(i + 1)
                       isContinueArr.push(i + 2)
-                      matchingTextArray.push(`${word} ${word1}${word2}`);
+                      // word2是否以【开头，如果不是要加空格
+                      matchingTextArray.push(`${word} ${word1}${regex4.test(word2) ? '' : ' '}${word2}`);
                     }
                   }
                 } else {
@@ -302,7 +296,7 @@ async function onMessage(msg: MessageInterface) {
    * 2. 无分机号
    * 单号+收货人
    */
-  const eTNMsgArr = matchETNText(text.trim())
+  const eTNMsgArr = matchETNTextWithReg(text.trim())
   if (eTNMsgArr.length) {
     // 解析数据并存储
     const regex = /\[\d{4}\]/
@@ -337,10 +331,10 @@ async function onMessage(msg: MessageInterface) {
  */
 const bot = WechatyBuilder.build({
   name: 'default',
-  puppet: 'wechaty-puppet-xp', // 桌面端协议
-  puppetOptions: {
-    version: '3.9.2.23',
-  },
+  // puppet: 'wechaty-puppet-xp', // 桌面端协议
+  // puppetOptions: {
+  //   version: '3.9.2.23',
+  // },
 })
   .on('scan', onScan)
   .on('login', user => log.info(`User ${user} logged in`))
