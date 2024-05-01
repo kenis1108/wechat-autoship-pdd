@@ -2,7 +2,7 @@
  * @Author: kenis 1836362346@qq.com
  * @Date: 2024-03-15 15:12:37
  * @LastEditors: kenis 1836362346@qq.com
- * @LastEditTime: 2024-04-29 11:01:31
+ * @LastEditTime: 2024-05-01 11:55:07
  * @FilePath: \wechat-autoship-pdd\src\wechaty\index.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -47,7 +47,9 @@ export function matchETNTextWithReg(input: string): string[] {
   const regex1 = /^\d{14}.+(\[\d{4}\])?/
   /** 匹配单号 */
   const regex2 = /\d{14}/
+  /** 匹配以】结尾 */
   const regex3 = /\]$/
+  /** 匹配以【开头 */
   const regex4 = /^\[/
   const matchingTextArray: string[] = [];
   // First of all：分割以换行隔开的多个单号
@@ -63,7 +65,13 @@ export function matchETNTextWithReg(input: string): string[] {
           continue
         }
         if (regex1.test(word)) {
-          matchingTextArray.push(word);
+          const word1 = words[i + 1]
+          if (word1 && !regex3.test(word1) && !regex2.test(word1)) {
+            isContinueArr.push(i + 1)
+            matchingTextArray.push(`${word} ${word1}`)
+          } else {
+            matchingTextArray.push(word);
+          }
         } else {
           // 78779855108257  66 [3199]
           // 如果只有单号，那么加上它后面一个或两个元素
@@ -77,17 +85,15 @@ export function matchETNTextWithReg(input: string): string[] {
                 matchingTextArray.push(`${word} ${word1}`);
               } else {
                 if (word2) {
-                  if (regex3.test(word2)) {
-                    // 后面的第二个里面不能有单号,是单号就只加后面的一个
-                    if (regex2.test(word2)) {
-                      isContinueArr.push(i + 1)
-                      matchingTextArray.push(`${word} ${word1}`);
-                    } else {
-                      isContinueArr.push(i + 1)
-                      isContinueArr.push(i + 2)
-                      // word2是否以【开头，如果不是要加空格
-                      matchingTextArray.push(`${word} ${word1}${regex4.test(word2) ? '' : ' '}${word2}`);
-                    }
+                  // 后面的第二个里面不能有单号,是单号就只加后面的一个
+                  if (regex2.test(word2)) {
+                    isContinueArr.push(i + 1)
+                    matchingTextArray.push(`${word} ${word1}`);
+                  } else {
+                    isContinueArr.push(i + 1)
+                    isContinueArr.push(i + 2)
+                    // word2是否以【开头，如果不是要加空格
+                    matchingTextArray.push(`${word} ${word1}${regex4.test(word2) ? '' : ' '}${word2}`);
                   }
                 } else {
                   isContinueArr.push(i + 1)
